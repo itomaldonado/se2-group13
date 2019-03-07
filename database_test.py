@@ -5,7 +5,7 @@ from stockast.models import Base
 from stockast.models import Company
 
 # databse Engine
-engine = create_engine('sqlite:////Users/mmaldonadofigueroa/Desktop/test.db', echo=True)
+engine = create_engine('sqlite://test.db', echo=True)
 
 # create all tables if needed
 Base.metadata.create_all(engine)
@@ -16,7 +16,7 @@ Session.configure(bind=engine)
 session = Session()
 
 # create a new company
-apple = Company(name='Apple Inc.', exchange='NASDAQ', ticker='AAPL')
+apple = Company(name='Apple Inc.', exchange='NASDAQ', symbol='AAPL')
 
 # add the company to the database/session
 session.add(apple)
