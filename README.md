@@ -16,7 +16,23 @@ Software Engineering 2 - Group 13 Project
 * Install all project dependencies: `pip install -r requirements.txt`
 * Export IEX Cloud token to your environment: `export IEX_TOKEN=<IEX_API_TOKEN_HERE>`
 
-## Run Collectors
+## Collectors
+The collectors seen on this section will get data for 10 different stocks (hard-coded symbols). The symbols are:
+```
+[
+  'AABA',
+  'AAPL',
+  'ADBE',
+  'AMZN',
+  'FB',
+  'GOOG',
+  'JPM',
+  'MSFT',
+  'NVDA',
+  'TSLA',
+]
+```
+
 Before running a collector, the assumption is that you have a database running (like `MySQL`)
 or you are going to use `SQLite`.
 
