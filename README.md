@@ -119,3 +119,11 @@ The full cron command would be:
 
 * 13-21 * * 1-5 cd /path/to/se2-group13 && /path/to/se2-group13/venv/bin/python /path/to/se2-group13/get-realtime-stock-data.py -t <IEX_TOKEN> <database connection string>
 ```
+
+## Data Dumps
+
+The folder: `./data-dumps` contains three files with the historical and real-time information collected.
+
+* Dump of companies information table: `./data-dumps/companies.csv`
+* Dump of historical stocks data: `./data-dumps/stocks_history.csv`
+* Dump of real-time stocks data: `./data-dumps/stocks_real_time.csv`
