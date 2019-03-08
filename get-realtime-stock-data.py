@@ -8,7 +8,9 @@ from sqlalchemy import create_engine
 
 from stockast.collectors import IEXStockCollector
 from stockast.models import Base
+from stockast.models import Company
 from stockast.models import StockRealTime
+from stockast.utils import parse_companies, insert_ignore_dups
 
 # list of tickets to pull data for
 symbols = [
@@ -46,6 +48,15 @@ def download_realtime_data(debug, token, database_url):
         # create the collector
         collector = IEXStockCollector(token)
 
+        # create or get company names
+        data = collector.get_company_info(symbols)
+
+        # parse data into list of Company objects
+        objects = parse_companies(data)
+
+        # save Companies objects in bulk and commit transaction ignore dups
+        insert_ignore_dups(engine, session, Company, objects)
+
         # get the historical data
         data = collector.get_real_time_data(symbols)
 
@@ -53,11 +64,10 @@ def download_realtime_data(debug, token, database_url):
         objects = []
         now = datetime.utcnow()
         for symbol, price in data.items():
-            objects.append(StockRealTime(symbol=symbol, timestamp=now, price=price))
+            objects.append({'symbol': symbol, 'timestamp': now, 'price': price})
 
-        # save StockRealTime objects in bulk and commit transaction
-        session.bulk_save_objects(objects)
-        session.commit()
+        # save StockRealTime objects in bulk and commit transaction, ignore dups
+        insert_ignore_dups(engine, session, StockRealTime, objects)
     finally:
         # attempt to close db connection even if there are errors
         session.close()

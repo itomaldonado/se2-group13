@@ -5,7 +5,7 @@ from stockast.models import Base
 from stockast.models import Company
 
 # databse Engine
-engine = create_engine('sqlite://test.db', echo=True)
+engine = create_engine('sqlite:///test.db', echo=True)
 
 # create all tables if needed
 Base.metadata.create_all(engine)
@@ -25,7 +25,7 @@ session.add(apple)
 session.commit()
 
 # show that now the company has an ID given by the database
-print(f'Apple company id: {apple.id}')
+print(f'Apple company id: {apple.symbol}')
 
 # close the session
 session.close()

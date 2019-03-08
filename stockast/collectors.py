@@ -18,7 +18,24 @@ class IEXStockCollector(object):
         # session to cache data
         self.expiry = datetime.timedelta(days=cache_expire_days)
         self.session = requests_cache.CachedSession(
-            cache_name='iexcache', backend='sqlite', expire_after=self.expiry)
+            cache_name='iexcache', backend='sqlite',
+            expire_after=self.expiry, ignored_parameters='token')
+
+    def get_company_info(self, symbols):
+        if symbols and type(symbols) != list:
+            symbols = [symbols]
+
+        batch = stocks.Stock(
+            symbols,
+            token=self.token,
+            output_format=self.output_format
+        )
+        info = batch.get_company()
+
+        # if there was only one symbol
+        # convert to proper dictionary response
+        # else return what was downloaded as is
+        return {symbols[0]: info} if len(symbols) == 1 else info
 
     def get_historical_data(self, symbols, from_date, to_date):
         """ Gets stocks historical data, which includes:
@@ -55,7 +72,7 @@ class IEXStockCollector(object):
         if symbols and type(symbols) != list:
             symbols = [symbols]
 
-        return stocks.get_historical_data(
+        history = stocks.get_historical_data(
             symbols,
             start=from_date,
             end=to_date,
@@ -63,6 +80,11 @@ class IEXStockCollector(object):
             output_format=self.output_format,
             session=self.session
         )
+
+        # if there was only one symbol
+        # convert to proper dictionary response
+        # else return what was downloaded as is
+        return {symbols[0]: history} if len(symbols) == 1 else history
 
     def get_real_time_data(self, symbols):
         """ Gets real-time/current stock prices.
@@ -83,15 +105,11 @@ class IEXStockCollector(object):
         batch = stocks.Stock(
             symbols,
             token=self.token,
-            output_format=self.output_format,
-            session=self.session
+            output_format=self.output_format
         )
         prices = batch.get_price()
 
-        # if the price is just a single number
-        # assume that only one symbol was given,
-        # convert to dictionary
-        if type(prices) != dict:
-            prices = {symbols[0]: prices}
-
-        return prices
+        # if there was only one symbol
+        # convert to proper dictionary response
+        # else return what was downloaded as is
+        return {symbols[0]: prices} if len(symbols) == 1 else prices

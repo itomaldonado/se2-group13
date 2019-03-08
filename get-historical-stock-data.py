@@ -1,14 +1,14 @@
 import click
 import os
 
-from datetime import datetime
-
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
 from stockast.collectors import IEXStockCollector
 from stockast.models import Base
+from stockast.models import Company
 from stockast.models import StockHistory
+from stockast.utils import insert_ignore_dups, parse_companies, parse_historical_data
 
 # list of tickets to pull data for
 symbols = [
@@ -50,27 +50,23 @@ def download_historical_data(debug, token, from_date, to_date, database_url):
         # create the collector
         collector = IEXStockCollector(token)
 
+        # create or get company names
+        data = collector.get_company_info(symbols)
+
+        # parse data into list of Company objects
+        objects = parse_companies(data)
+
+        # save Companies objects in bulk and commit transaction ignore dups
+        insert_ignore_dups(engine, session, Company, objects)
+
         # get the historical data
         data = collector.get_historical_data(symbols, from_date, to_date)
 
         # parse data into a list of StockHistory objects
-        objects = []
-        for symbol, history in data.items():
-            for datestamp, prices in history.items():
-                objects.append(
-                    StockHistory(
-                        symbol=symbol,
-                        date=datetime.strptime(datestamp, '%Y-%m-%d'),
-                        day_open=prices['open'],
-                        day_close=prices['close'],
-                        day_high=prices['high'],
-                        day_low=prices['low'],
-                        day_volume=prices['volume']
-                    )
-                )
-        # save StockHistory objects in bulk and commit transaction
-        session.bulk_save_objects(objects)
-        session.commit()
+        objects = parse_historical_data(data)
+
+        # save StockHistory objects in bulk and commit transaction ignore dups
+        insert_ignore_dups(engine, session, StockHistory, objects)
     finally:
         # attempt to close db connection even if there are errors
         session.close()
