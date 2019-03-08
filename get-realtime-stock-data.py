@@ -13,7 +13,7 @@ from stockast.models import StockRealTime
 from stockast.utils import insert_ignore_dups, parse_companies, parse_realtime_data
 
 # list of tickets to pull data for
-symbols = [
+default_symbols = [
     'AABA',
     'AAPL',
     'ADBE',
@@ -33,6 +33,12 @@ symbols = [
 @click.option('--token', default=os.getenv('IEX_TOKEN'), help='IEX Cloud API Token')
 @click.argument('database_url')
 def download_realtime_data(debug, show_data, token, database_url):
+    # Normalize symbols to a list of uppercase symbols
+    symbols = default_symbols
+    if symbols and type(symbols) != list:
+            symbols = [symbols]
+    symbols = [x.upper() for x in symbols]
+
     # databse Engine
     # example: 'sqlite:////Users/mmaldonadofigueroa/Desktop/test.db'
     engine = create_engine(database_url, echo=debug)

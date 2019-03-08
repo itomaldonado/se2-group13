@@ -11,7 +11,7 @@ from stockast.models import StockHistory
 from stockast.utils import insert_ignore_dups, parse_companies, parse_historical_data
 
 # list of tickets to pull data for
-symbols = [
+default_symbols = [
     'AABA',
     'AAPL',
     'ADBE',
@@ -35,6 +35,12 @@ symbols = [
     '--to-date', '-t', default='2018-12-31', type=click.DateTime(), help='To date to get data')
 @click.argument('database_url')
 def download_historical_data(debug, show_data, token, from_date, to_date, database_url):
+    # Normalize symbols to a list of uppercase symbols
+    symbols = default_symbols
+    if symbols and type(symbols) != list:
+            symbols = [symbols]
+    symbols = [x.upper() for x in symbols]
+
     # databse Engine
     # example: 'sqlite:////Users/mmaldonadofigueroa/Desktop/test.db'
     engine = create_engine(database_url, echo=debug)
