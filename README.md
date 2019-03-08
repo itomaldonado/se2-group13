@@ -39,12 +39,13 @@ or you are going to use `SQLite`.
 ### Historical Data Collector
 * Display Help Menu
 ```
-$ python get-historical-stock-data.py --help
+$ python python get-historical-stock-data.py --help
 
 Usage: get-historical-stock-data.py [OPTIONS] DATABASE_URL
 
 Options:
-  --debug
+  --debug                         Show queries
+  -s, --show-data                 Show data downloaded
   --token TEXT                    IEX Cloud API Token
   -f, --from-date [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
                                   From date to get data
@@ -76,9 +77,10 @@ $ python get-realtime-stock-data.py --help
 Usage: get-realtime-stock-data.py [OPTIONS] DATABASE_URL
 
 Options:
-  --debug
-  --token TEXT  IEX Cloud API Token
-  --help        Show this message and exit.
+  --debug          Show queries
+  -s, --show-data  Show data downloaded
+  --token TEXT     IEX Cloud API Token
+  --help           Show this message and exit.
 ```
 
 * Run the collector

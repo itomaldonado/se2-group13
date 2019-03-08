@@ -10,7 +10,7 @@ from stockast.collectors import IEXStockCollector
 from stockast.models import Base
 from stockast.models import Company
 from stockast.models import StockRealTime
-from stockast.utils import parse_companies, insert_ignore_dups
+from stockast.utils import insert_ignore_dups, parse_companies, parse_realtime_data
 
 # list of tickets to pull data for
 symbols = [
@@ -28,10 +28,11 @@ symbols = [
 
 
 @click.command()
-@click.option('--debug', is_flag=True)
+@click.option('--debug', is_flag=True, help="Show queries")
+@click.option('--show-data', '-s', is_flag=True, help="Show data downloaded")
 @click.option('--token', default=os.getenv('IEX_TOKEN'), help='IEX Cloud API Token')
 @click.argument('database_url')
-def download_realtime_data(debug, token, database_url):
+def download_realtime_data(debug, show_data, token, database_url):
     # databse Engine
     # example: 'sqlite:////Users/mmaldonadofigueroa/Desktop/test.db'
     engine = create_engine(database_url, echo=debug)
@@ -52,7 +53,7 @@ def download_realtime_data(debug, token, database_url):
         data = collector.get_company_info(symbols)
 
         # parse data into list of Company objects
-        objects = parse_companies(data)
+        objects = parse_companies(data, show=show_data)
 
         # save Companies objects in bulk and commit transaction ignore dups
         insert_ignore_dups(engine, session, Company, objects)
@@ -61,10 +62,7 @@ def download_realtime_data(debug, token, database_url):
         data = collector.get_real_time_data(symbols)
 
         # parse data into a list of StockRealTime objects
-        objects = []
-        now = datetime.utcnow()
-        for symbol, price in data.items():
-            objects.append({'symbol': symbol, 'timestamp': now, 'price': price})
+        objects = parse_realtime_data(datetime.utcnow(), data, show=show_data)
 
         # save StockRealTime objects in bulk and commit transaction, ignore dups
         insert_ignore_dups(engine, session, StockRealTime, objects)
