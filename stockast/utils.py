@@ -1,4 +1,7 @@
+from distutils.util import strtobool
+from stockast.models import User
 from datetime import datetime
+from falcon import HTTPUnauthorized
 
 # SQL insert ignore options
 ignore_stmt = {
@@ -18,6 +21,11 @@ def parse_companies(companies, show=False):
             print(f'{item["symbol"]},{item["name"]},{item["exchange"]}')
         objects.append(item)
     return objects
+
+
+def parse_companies_dict(companies, show=False):
+    objects = parse_companies(companies, show)
+    return {item['symbol']: item for item in objects}
 
 
 def parse_historical_data(history, show=False):
@@ -69,3 +77,34 @@ def insert_ignore_dups(engine, session, model, values):
     except Exception as e:
         print(f'Could not save into {model.__table__}: {e}')
         session.rollback()
+
+
+def parse_bool(v):
+    """ Converts a string to boolean representation
+    Args:
+        v (String): value to convert
+    Returns:
+        Boolean: True values are y, yes, t, true, on and 1;
+                 False: anything else.
+    """
+    try:
+        return bool(strtobool(str(v)))
+    except ValueError:
+        return False
+
+
+# user-loader function for authentication
+def user_loader(username, password):
+    """ Load a user from the database and compare its password"""
+
+    # get user from DB
+    user = User.query.filter_by(email=username).first()
+
+    # if we found a user and the password matches, return user as dict
+    if user and user.password == password:
+        user = user._as_dict()
+        user.pop('password')
+        return user
+
+    # for every other scenario, raise a 401 error
+    raise HTTPUnauthorized(description='invalid user or password.')

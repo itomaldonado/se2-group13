@@ -11,8 +11,7 @@ engine = create_engine('sqlite:///test.db', echo=True)
 Base.metadata.create_all(engine)
 
 # create session
-Session = sessionmaker()
-Session.configure(bind=engine)
+Session = sessionmaker(bind=engine)
 session = Session()
 
 # create a new company

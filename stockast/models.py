@@ -3,12 +3,28 @@ from sqlalchemy import Date
 from sqlalchemy import Float
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
+from sqlalchemy import inspect
 from sqlalchemy import String
 from sqlalchemy import TIMESTAMP
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import as_declarative
+from sqlalchemy_utils.types.password import PasswordType
+
 
 # base declarative class for SQLAlchemy
-Base = declarative_base()
+@as_declarative()
+class Base:
+    def _asdict(self):
+        return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
+
+
+class User(Base):
+    """Class representing the 'users' table"""
+    __tablename__ = 'users'
+
+    id = Column(Integer, nullable=False, autoincrement=True, primary_key=True)
+    email = Column(String(250), nullable=False, unique=True)
+    name = Column(String(100), nullable=False)
+    password = Column(PasswordType(schemes=['pbkdf2_sha512']), unique=False, nullable=False)
 
 
 class Company(Base):
