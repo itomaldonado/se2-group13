@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class SQLAlchemySessionManager:
     """Create a scoped session for every request and close it when the request ends.
     """

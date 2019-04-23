@@ -5,8 +5,10 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import inspect
 from sqlalchemy import String
-from sqlalchemy import TIMESTAMP
+from sqlalchemy import DateTime
 from sqlalchemy.ext.declarative import as_declarative
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from sqlalchemy_utils.types.password import PasswordType
 
 
@@ -17,6 +19,16 @@ class Base:
         return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
 
+class Follows(Base):
+    """Class representing the list of companies a user follows, i.e. the 'follows' table"""
+    __tablename__ = 'follows'
+
+    user_id = Column(ForeignKey('users.id'), index=True, primary_key=True)
+    symbol = Column(ForeignKey('companies.symbol'), index=True, primary_key=True)
+    timestamp = Column(
+        DateTime(timezone=False), server_default=func.now(), default=func.now())
+
+
 class User(Base):
     """Class representing the 'users' table"""
     __tablename__ = 'users'
@@ -25,6 +37,7 @@ class User(Base):
     email = Column(String(250), nullable=False, unique=True)
     name = Column(String(100), nullable=False)
     password = Column(PasswordType(schemes=['pbkdf2_sha512']), unique=False, nullable=False)
+    following = relationship(Follows, backref='user', lazy='joined')
 
 
 class Company(Base):
@@ -54,5 +67,5 @@ class StockRealTime(Base):
     __tablename__ = 'stocks_real_time'
 
     symbol = Column(ForeignKey('companies.symbol'), index=True, primary_key=True)
-    timestamp = Column(TIMESTAMP, index=True, primary_key=True)
+    timestamp = Column(DateTime(timezone=False), index=True, primary_key=True)
     price = Column(Float, nullable=False)

@@ -10,6 +10,9 @@ ARG GUNICORN_TIMEOUT
 
 # Default environmental variables
 ENV STOCKAST_DB_URL="sqlite:////home/python/stockast.db"
+ENV STOCKAST_LOG_LEVEL="INFO"
+ENV STOCKAST_DATABASE_DEBUG="false"
+ENV STOCKAST_IEX_CLOUD_TOKEN=''
 
 ENV PYTHONPATH=/home/python/\
     PYTHONUNBUFFERED=1\
