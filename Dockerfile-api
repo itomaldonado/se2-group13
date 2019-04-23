@@ -1,0 +1,28 @@
+from library/python:3.7.3-slim
+
+ENV APP_VERSION=0.0.1
+ENV APP_NAME="stockast"
+
+ARG GUNICORN_HOST
+ARG GUNICORN_PORT
+ARG GUNICORN_WORKERS
+ARG GUNICORN_TIMEOUT
+
+# Default environmental variables
+ENV STOCKAST_DB_URL="sqlite:////home/python/stockast.db"
+
+ENV PYTHONPATH=/home/python/\
+    PYTHONUNBUFFERED=1\
+    GUNICORN_HOST=${GUNICORN_HOST:-0.0.0.0}\
+    GUNICORN_PORT=${GUNICORN_PORT:-80}\
+    GUNICORN_WORKERS=${GUNICORN_WORKERS:-4}\
+    GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-30}
+
+ADD ./stockast/requirements.txt /home/python/requirements.txt
+RUN pip install --no-cache-dir -r /home/python/requirements.txt
+
+WORKDIR /home/python
+ADD ./stockast /home/python/stockast
+
+EXPOSE 80
+CMD gunicorn -b ${GUNICORN_HOST}:${GUNICORN_PORT} --workers ${GUNICORN_WORKERS} stockast.app

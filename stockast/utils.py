@@ -1,7 +1,6 @@
 from distutils.util import strtobool
-from stockast.models import User
 from datetime import datetime
-from falcon import HTTPUnauthorized
+
 
 # SQL insert ignore options
 ignore_stmt = {
@@ -91,20 +90,3 @@ def parse_bool(v):
         return bool(strtobool(str(v)))
     except ValueError:
         return False
-
-
-# user-loader function for authentication
-def user_loader(username, password):
-    """ Load a user from the database and compare its password"""
-
-    # get user from DB
-    user = User.query.filter_by(email=username).first()
-
-    # if we found a user and the password matches, return user as dict
-    if user and user.password == password:
-        user = user._as_dict()
-        user.pop('password')
-        return user
-
-    # for every other scenario, raise a 401 error
-    raise HTTPUnauthorized(description='invalid user or password.')

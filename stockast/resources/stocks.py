@@ -10,11 +10,11 @@ class StockHistoryCollectionResource(CollectionResource):
     """ Makse CRUD-like resource for stock history collections"""
     model = StockHistory
     methods = ['GET']
-    default_sort = ['symbol', '-date']
+    default_sort = ['symbol', 'date']
 
 
 class StockRealTimeCollectionResource(CollectionResource):
     """ Makse CRUD-like resource for real-time stock collections"""
     model = StockRealTime
     methods = ['GET']
-    default_sort = ['symbol', '-timestamp']
+    default_sort = ['symbol', 'timestamp']
