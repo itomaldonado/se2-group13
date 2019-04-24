@@ -1,4 +1,5 @@
 import click
+import logging
 import os
 
 from datetime import datetime
@@ -11,6 +12,8 @@ from stockast.models import Base
 from stockast.models import Company
 from stockast.models import StockRealTime
 from stockast.utils import insert_ignore_dups, parse_companies, parse_realtime_data
+
+logger = logging.getLogger(__name__)
 
 # list of tickets to pull data for
 default_symbols = [
@@ -71,6 +74,7 @@ def download_realtime_data(debug, show_data, token, database_url):
         objects = parse_realtime_data(datetime.utcnow(), data, show=show_data)
 
         # save StockRealTime objects in bulk and commit transaction, ignore dups
+        logger.info(f'Inserting: {objects}')
         insert_ignore_dups(engine, session, StockRealTime, objects)
     finally:
         # attempt to close db connection even if there are errors

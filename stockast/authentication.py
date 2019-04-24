@@ -26,20 +26,24 @@ class StockastAuthentication(object):
         # get username and password from auth header
         try:
             username, password = self.decode(auth_header)
+            logger.debug(f'Trying to authenticate: {username}.')
         except DecodeError:
             raise HTTPUnauthorized('Authentication Required', 'No credentials supplied')
 
         # get user from DB
         user = self.user_loader(resource.db_engine, username.lower(), password)
+        logger.debug(f'User query returned: {user}.')
 
         # if we found a user and the password matches, return user as dict
         if user and user.password == password:
+            logger.debug(f'Authentication successful for: {username}.')
             req.context['user'] = {
                 'id': user.id,
                 'name': user.name,
                 'email': user.email,
             }
         else:
+            logger.debug(f'Authentication failure for: {username}.')
             # for every other scenario, raise a 401 error
             raise HTTPUnauthorized(description='invalid user or password.')
 
@@ -91,11 +95,17 @@ class StockastUserUpdateAuthorization(object):
     def authorize(self, req, resp, resource, params):
         # get the ID of the user
         user_id = params.get('id')
+        logger.debug(f'Trying to authorize user with id: {user_id}.')
 
         # if the user does not exist in context, no access
         if 'user' not in req.context:
+            logger.debug(f'User not set in context, permission denied.')
             raise HTTPForbidden('Permission Denied', 'User does not have access to this resource')
 
         # if the user tries to access a user resource who's ID is not the same as it, break access
-        if str(req.context['user']['id']) != str(user_id):
+        context_user_id = req.context["user"]["id"]
+        if str(context_user_id) != str(user_id):
+            logger.debug(
+                f'User id: {str(user_id)} does not match '
+                f'the context user: {str(context_user_id)}')
             raise HTTPForbidden('Permission Denied', 'User does not have access to this resource')

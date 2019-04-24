@@ -1,4 +1,5 @@
 import click
+import logging
 import os
 
 from sqlalchemy.orm import sessionmaker
@@ -9,6 +10,8 @@ from stockast.models import Base
 from stockast.models import Company
 from stockast.models import StockHistory
 from stockast.utils import insert_ignore_dups, parse_companies, parse_historical_data
+
+logger = logging.getLogger(__name__)
 
 # list of tickets to pull data for
 default_symbols = [
@@ -73,6 +76,7 @@ def download_historical_data(debug, show_data, token, from_date, to_date, databa
         objects = parse_historical_data(data, show=show_data)
 
         # save StockHistory objects in bulk and commit transaction ignore dups
+        logger.info(f'Inserting: {objects}')
         insert_ignore_dups(engine, session, StockHistory, objects)
     finally:
         # attempt to close db connection even if there are errors

@@ -1,8 +1,13 @@
 import os
+import posixpath
 from stockast.utils import parse_bool
 
 # General configuration
 LOG_LEVEL = os.getenv('STOCKAST_LOG_LEVEL', 'INFO').upper()
+API_PREFIX = os.getenv('STOCKAST_API_PREFIX', '').lower()
+API_PREFIX = API_PREFIX.strip().strip('/')
+API_PREFIX = posixpath.normpath(API_PREFIX).strip('.')
+API_PREFIX = f'/{API_PREFIX}/' if API_PREFIX else '/'
 
 
 # Collector configuration
