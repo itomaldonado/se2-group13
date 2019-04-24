@@ -1,10 +1,10 @@
+import falcon
 import logging
 
 from falcon_autocrud.auth import authorize, identify
 from falcon_autocrud.resource import CollectionResource, SingleResource
 
 from stockast.authentication import StockastAuthentication
-from stockast.authentication import StockastFollowUpdateAuthorization
 from stockast.authentication import StockastUserUpdateAuthorization
 from stockast.models import Follows
 from stockast.models import User
@@ -34,7 +34,7 @@ class UserResource(SingleResource):
     response_fields = ['id', 'name', 'email']
 
 
-@authorize(StockastFollowUpdateAuthorization, methods=['POST'])
+@authorize(StockastUserUpdateAuthorization, methods=['POST'])
 @identify(StockastAuthentication)
 class UserFollowsCollectionResource(CollectionResource):
     """ Makse CRUD-like resource for list of follows a single user has collections"""
@@ -49,7 +49,7 @@ class UserFollowsCollectionResource(CollectionResource):
     }
 
 
-@authorize(StockastFollowUpdateAuthorization, methods=['DELETE'])
+@authorize(StockastUserUpdateAuthorization, methods=['DELETE'])
 @identify(StockastAuthentication)
 class UserFollowsResource(SingleResource):
     """ Makse CRUD-like resource for follow entity users"""
@@ -60,4 +60,14 @@ class UserFollowsResource(SingleResource):
     }
     inbound_attr_map = {
         'id': 'user_id'
+    }
+
+
+@identify(StockastAuthentication)
+class LoginResource(SingleResource):
+    model = User
+    methods = ['GET']
+    response_fields = ['id', 'name', 'email']
+    lookup_attr_map = {
+        'id': lambda req, resp, query, *args, **kwargs: req.context['user']['id']
     }

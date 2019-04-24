@@ -9,7 +9,6 @@ from stockast.models import Base
 from stockast.resources import user
 from stockast.resources import company
 from stockast.resources import stocks
-from stockast.utils import parse_bool
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +20,7 @@ Base.metadata.create_all(engine)
 application = falcon.API(middleware=[Middleware()])
 
 # paths and resources
-# application.add_route('/login', user.LoginResource())
+application.add_route('/login', user.LoginResource(engine))
 application.add_route('/users', user.UserCollectionResource(engine))
 application.add_route('/users/{id}', user.UserResource(engine))
 application.add_route('/users/{id}/follows', user.UserFollowsCollectionResource(engine))
@@ -30,3 +29,5 @@ application.add_route('/companies', company.CompanyCollectionResource(engine))
 application.add_route('/companies/{symbol}', company.CompanyResource(engine))
 application.add_route('/stocks/history', stocks.StockHistoryCollectionResource(engine))
 application.add_route('/stocks/realtime', stocks.StockRealTimeCollectionResource(engine))
+# TODO: models
+# TODO: predict

@@ -99,23 +99,3 @@ class StockastUserUpdateAuthorization(object):
         # if the user tries to access a user resource who's ID is not the same as it, break access
         if str(req.context['user']['id']) != str(user_id):
             raise HTTPForbidden('Permission Denied', 'User does not have access to this resource')
-
-
-class StockastFollowUpdateAuthorization(object):
-    """ Handles checks of user information updates"""
-
-    def authorize(self, req, resp, resource, params):
-        # get the ID of the user
-        user_id = params.get("id")
-
-        logger.info(f'Follow - user_id: {user_id}')
-
-        # if the user does not exist in context, no access
-        if 'user' not in req.context:
-            logger.warn(f'User not loaded in context.')
-            raise HTTPForbidden('Permission Denied', 'User does not have access to this resource')
-
-        # if the user tries to access a user resource who's ID is not the same as it, break access
-        if str(req.context['user']['id']) != str(user_id):
-            logger.warn(f'Context user id is not the same as requested user id')
-            raise HTTPForbidden('Permission Denied', 'User does not have access to this resource')

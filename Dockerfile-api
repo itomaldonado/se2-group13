@@ -25,6 +25,8 @@ ADD ./stockast/requirements.txt /home/python/requirements.txt
 RUN pip install --no-cache-dir -r /home/python/requirements.txt
 
 WORKDIR /home/python
+ADD ./get-historical-stock-data.py /home/python
+ADD ./get-realtime-stock-data.py /home/python
 ADD ./stockast /home/python/stockast
 
 EXPOSE 80
