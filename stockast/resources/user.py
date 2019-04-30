@@ -63,11 +63,10 @@ class UserFollowsResource(SingleResource):
     }
 
 
-@identify(StockastAuthentication)
-class LoginResource(SingleResource):
-    model = User
-    methods = ['GET']
-    response_fields = ['id', 'name', 'email']
-    lookup_attr_map = {
-        'id': lambda req, resp, query, *args, **kwargs: req.context['user']['id']
-    }
+class LoginResource:
+    def __init__(self, engine):
+        self.db_engine = engine
+
+    @falcon.before(StockastAuthentication())
+    def on_get(self, req, resp):
+        resp.media = req.context['user']

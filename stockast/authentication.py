@@ -17,6 +17,9 @@ class DecodeError(Exception):
 class StockastAuthentication(object):
     """ Handles user login and loading the user to the request context"""
 
+    def __call__(self, req, resp, resource, params):
+        self.identify(req, resp, resource, params)
+
     def identify(self, req, resp, resource, params):
         # check auth header
         auth_header = req.get_header('Authorization')
