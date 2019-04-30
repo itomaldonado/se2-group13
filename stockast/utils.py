@@ -90,3 +90,28 @@ def parse_bool(v):
         return bool(strtobool(str(v)))
     except ValueError:
         return False
+
+
+def check_params(param, allowed_params):
+    """ Checks of parameter is in the allowed parameters list"""
+    return param in allowed_params
+
+
+def check_and_get_company(symbol, model, db_session):
+    """ Checks if a company exists, returns the query if it does, None if it doesn't"""
+    return db_session.query(model).filter_by(symbol=symbol).first()
+
+
+def compare_price(last_price, predicted_price, bought_price=None):
+    """ Compare prices and come up with a 'buy' / 'sell' / 'hold' prediction"""
+
+    # if the last price recorded is lower than the lowest prediction in range
+    # predict to 'buy', else predict to 'sell'
+
+    # if there is a bought_price, we should try to suggest 'hold' / 'sell'
+    if bought_price:
+        # return 'hold' if price is going up, else return 'sell'
+        return 'hold' if last_price < predicted_price else 'sell'
+    else:
+        # return 'buy' if the price is going up, else return 'sell'
+        return 'buy' if last_price < predicted_price else 'sell'

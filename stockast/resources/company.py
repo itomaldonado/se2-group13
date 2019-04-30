@@ -33,7 +33,8 @@ class CompanyCollectionResource(CollectionResource):
             resource.name = info['name']
             resource.symbol = info['symbol']
             resource.exchange = info['exchange']
-        except Exception:
+        except Exception as e:
+            logger.error(e)
             raise falcon.HTTPBadRequest(
                 description='could not validate the company symbol provided')
 
