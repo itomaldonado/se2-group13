@@ -80,7 +80,7 @@ class StockPredictionShort:
             from_timestamp = pd.Timestamp(pd.Timestamp.utcnow().strftime('%Y-%m-%d')) - BDay(days)
             query = db_session.query(StockRealTime).filter(
                 StockRealTime.symbol == symbol,
-                StockRealTime.timestamp >= from_timestamp
+                StockRealTime.timestamp >= from_timestamp.to_pydatetime()
             )
 
             # read-in data into a pandas dataframe
