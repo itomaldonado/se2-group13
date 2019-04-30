@@ -69,4 +69,4 @@ class LoginResource:
 
     @falcon.before(StockastAuthentication())
     def on_get(self, req, resp):
-        resp.media = req.context['user']
+        resp.media = {'data': req.context['user']}
