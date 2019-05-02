@@ -5,6 +5,7 @@ from falcon import HTTPUnauthorized, HTTPForbidden
 from six.moves.urllib.parse import unquote
 from sqlalchemy.orm import sessionmaker
 
+from stockast import config
 from stockast.models import User
 
 logger = logging.getLogger(__name__)
@@ -105,8 +106,14 @@ class StockastUserUpdateAuthorization(object):
             logger.debug(f'User not set in context, permission denied.')
             raise HTTPForbidden('Permission Denied', 'User does not have access to this resource')
 
+        # if the admin user did this, allow it
+        context_user_email = req.context['user']['email'].lower()
+        if (config.ADMIN_USER_EMAIL) and (config.ADMIN_USER_EMAIL.lower() == context_user_email):
+            logger.info(f'Admin login: {config.ADMIN_USER_EMAIL}, authorizing request')
+            return
+
         # if the user tries to access a user resource who's ID is not the same as it, break access
-        context_user_id = req.context["user"]["id"]
+        context_user_id = req.context['user']['id']
         if str(context_user_id) != str(user_id):
             logger.debug(
                 f'User id: {str(user_id)} does not match '

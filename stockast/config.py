@@ -22,6 +22,8 @@ if DATABASE_URL and (DATABASE_URL.lower().startswith('mysql')):
     DATABASE_URL = ":".join(DATABASE_URL.split(":")[1:])
     DATABASE_URL = f'mysql+pymysql:{DATABASE_URL}'
 
+# Authentication Configuration
+ADMIN_USER_EMAIL = os.getenv('STOCKAST_ADMIN_USER_EMAIL')
 
 # Logging configuration
 LOGGING = {

@@ -4,6 +4,32 @@ import requests_cache
 
 
 from iexfinance import stocks
+from iexfinance.utils import _sanitize_dates
+
+
+class StockastHistoricalReader(stocks.HistoricalReader):
+    def __init__(self, symbols, start, end, **kwargs):
+        start, end = _sanitize_dates(start, end)
+        super().__init__(symbols, start=start, end=end, **kwargs)
+
+    @property
+    def chart_range(self):
+        """ Calculates the chart range from start and end. Downloads larger
+        datasets (5y and 2y) when necessary, but defaults to 1y for performance
+        reasons
+        """
+        delta = datetime.datetime.now().year - self.start.year
+        if 5 <= delta:
+            return "max"
+        elif 2 <= delta <= 5:
+            return "5y"
+        elif 1 <= delta <= 2:
+            return "2y"
+        elif 0 <= delta < 1:
+            return "1y"
+        else:
+            raise ValueError(
+                "Invalid date specified. Must be within past 5 years.")
 
 
 class IEXStockCollector(object):
@@ -72,14 +98,14 @@ class IEXStockCollector(object):
         if symbols and type(symbols) != list:
             symbols = [symbols]
 
-        history = stocks.get_historical_data(
+        reader = StockastHistoricalReader(
             symbols,
-            start=from_date,
-            end=to_date,
-            token=self.token,
+            start=from_date, end=to_date, token=self.token,
             output_format=self.output_format,
             session=self.session
         )
+
+        history = reader.fetch()
 
         # if there was only one symbol
         # convert to proper dictionary response
