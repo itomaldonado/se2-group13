@@ -1,5 +1,6 @@
 import falcon
 import logging
+import math
 import pandas as pd
 
 from falcon_autocrud.db_session import session_scope
@@ -7,7 +8,8 @@ from pandas.tseries.offsets import BDay
 
 from stockast.authentication import StockastAuthentication
 from stockast.learning import bayesian
-from stockast.models import Company, StockRealTime
+from stockast.learning.svm import SVM
+from stockast.models import Company, StockHistory, StockRealTime
 from stockast.utils import check_and_get_company, check_params, compare_price
 
 logger = logging.getLogger(__name__)
@@ -118,6 +120,7 @@ class StockPredictionShort:
 
         # return the prediction results
         return {
+            'engine': 'bayesian',
             'last_price': last_price,
             'predicted_mean_price': round(mean, 2),
             'predicted_price_range': p_range,
@@ -128,10 +131,113 @@ class StockPredictionShort:
 
 class StockPredictionLong:
     """ Resource to run long-term predictions"""
+
+    ALLOWED_ENGINES = ['svm', 'lstm']
+    DEFAULT_ENGINE = 'svm'
+    DEFAULT_DAYS = 10
+    MAX_DAYS = 30
+
     def __init__(self, engine):
         self.db_engine = engine
 
     @falcon.before(StockastAuthentication())
     def on_get(self, req, resp, symbol):
-        resp.status = falcon.HTTP_OK
-        resp.media = {'status': 'ok'}
+
+        # get parameters
+        days = int(req.params.get('days', self.DEFAULT_DAYS))
+        engine = req.params.get('engine', self.DEFAULT_ENGINE).lower()
+        symbol = symbol.upper()
+        cost = req.params.get('cost')
+        cost = float(cost) if cost else None
+
+        # check params are proper and allowed
+        if not check_params(days, range(1, self.MAX_DAYS+1)):
+            raise falcon.HTTPInvalidParam(
+                msg=f'Valid values are: {", ".join(range(1, self.MAX_DAYS+1))}.', param_name='days')
+        if not check_params(engine, self.ALLOWED_ENGINES):
+            raise falcon.HTTPInvalidParam(
+                msg=f'Valid values are: {", ".join(self.ALLOWED_ENGINES)}.', param_name='engine')
+
+        with session_scope(self.db_engine) as db_session:
+
+            # check and get the company
+            company = check_and_get_company(symbol, Company, db_session)
+            if not company:
+                raise falcon.HTTPNotFound(description=(f'Company not found.'))
+
+            # get prediction results and return
+            if engine == 'svm':
+                prediction_results = self._svm(company.symbol, db_session, days=days, cost=cost)
+            else:
+                pass
+                # error
+
+            # return the prediction results
+            resp.status = falcon.HTTP_OK
+            resp.media = {'data': prediction_results}
+
+    def _svm(self, symbol, db_session, days=10, cost=None):
+        try:
+            # create query to filter by symbol and business days
+            svm = SVM()
+            days_of_data = int(days)
+            days_of_data += int(days_of_data * 0.25)
+            logger.info(f'Days of data to get: {days_of_data}')
+            from_date = pd.Timestamp(
+                pd.Timestamp.utcnow().strftime('%Y-%m-%d')) - BDay(days_of_data)
+            logger.info(f'From date: {from_date}')
+            query = db_session.query(StockHistory).filter(
+                StockHistory.symbol == symbol,
+                StockHistory.date >= from_date.to_pydatetime()
+            )
+
+            # read-in data into a pandas dataframe
+            frame = pd.read_sql(query.statement, db_session.bind, index_col='date')
+        except Exception as e:
+            logger.error(e)
+            raise falcon.HTTPInternalServerError(description='Error loading data for prediction.')
+
+        # there is no data to do anything, raise error
+        if frame.empty:
+            raise falcon.HTTPInternalServerError(
+                description=f'{symbol} does not have enough data for prediction')
+
+        # calculate the ratios and drop uneeded rows
+        logger.info(f'Length of frame before filtering: {len(frame)}')
+        frame = frame.dropna()
+        frame = frame.drop(['symbol'], axis=1)
+        frame['High_Low_per'] = (frame['day_high'] - frame['day_close']) / frame['day_close']*100
+        frame['Per_change'] = (frame['day_close'] - frame['day_open']) / frame['day_open']*100
+        frame = frame[['day_close', 'High_Low_per', 'Per_change']]
+        frame.fillna(value=-99999, inplace=True)
+        logger.info(f'Length of frame after filtering: {len(frame)}')
+
+        try:
+            # use svm prediction
+            p_range = svm.predict(symbol, frame, days)
+            p_range = p_range.tolist()
+        except Exception as e:
+            logger.error(e)
+            raise falcon.HTTPInternalServerError(
+                description='could not run SVM prediction.')
+
+        if len(p_range) < days:
+            raise falcon.HTTPInternalServerError(
+                description=f'Not enough predicted points for requested days: {days}')
+
+        logger.info(f'Price Range: {p_range}')
+        # get the prediction based on prices
+        last_price = frame[["day_close"]].values[-1][0]
+        last_price = round(last_price, 2)
+        predicted_price = round(p_range[(days-1)], 2)
+        bought_price = round(cost, 2) if cost else cost
+        prediction = compare_price(last_price, predicted_price, bought_price=bought_price)
+
+        # return the prediction results
+        return {
+            'engine': 'svm',
+            'last_price': last_price,
+            'predicted_price': predicted_price,
+            'predicted_price_range': p_range,
+            'prediction': prediction,
+        }

@@ -53,6 +53,6 @@ application.add_route(
 application.add_route(
     config.API_PREFIX + 'predict/short/{symbol}', prediction.StockPredictionShort(engine))
 application.add_route(
-    config.API_PREFIX + 'stocks/long/{symbol}', prediction.StockPredictionLong(engine))
+    config.API_PREFIX + 'predict/long/{symbol}', prediction.StockPredictionLong(engine))
 # TODO: models
 # TODO: predict
