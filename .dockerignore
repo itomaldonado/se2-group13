@@ -1,4 +1,5 @@
 .dockerignore
+iexcache.sqlite
 Dockerfile*
 db.sqlite3
 **/__pycache__

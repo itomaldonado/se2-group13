@@ -29,7 +29,7 @@ class StockastHistoricalReader(stocks.HistoricalReader):
             return "1y"
         else:
             raise ValueError(
-                "Invalid date specified. Must be within past 5 years.")
+                "Invalid date specified. Must be a positive value.")
 
 
 class IEXStockCollector(object):

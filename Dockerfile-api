@@ -22,7 +22,11 @@ ENV PYTHONPATH=/home/python/\
     GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-30}
 
 ADD ./stockast/requirements.txt /home/python/requirements.txt
-RUN pip install --no-cache-dir -r /home/python/requirements.txt
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc python-dev \
+    && pip install --upgrade pip \
+    && pip install --no-cache-dir -r /home/python/requirements.txt \
+    && apt-get purge -y --auto-remove gcc python-dev
 
 WORKDIR /home/python
 ADD ./get-historical-stock-data.py /home/python

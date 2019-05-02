@@ -12,6 +12,7 @@ from stockast.resources import health
 from stockast.resources import stocks
 from stockast.resources import user
 from stockast.resources import prediction
+from stockast.resources import predictors
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,8 @@ application.add_route(
     config.API_PREFIX + 'stocks/history', stocks.StockHistoryCollectionResource(engine))
 application.add_route(
     config.API_PREFIX + 'stocks/realtime', stocks.StockRealTimeCollectionResource(engine))
+application.add_route(
+    config.API_PREFIX + 'predictors/{symbol}', predictors.StockPredictors(engine))
 application.add_route(
     config.API_PREFIX + 'predict/short/{symbol}', prediction.StockPredictionShort(engine))
 application.add_route(

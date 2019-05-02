@@ -77,6 +77,7 @@ class StockPredictionShort:
             days (String): how many business-days worth of data should be used to feed
                 into the Bayesian prediction algorithm
         """
+        step = step.upper()
         try:
             # create query to filter by symbol and business days
             from_timestamp = pd.Timestamp(pd.Timestamp.utcnow().strftime('%Y-%m-%d')) - BDay(days)
@@ -117,15 +118,21 @@ class StockPredictionShort:
         predicted_price = round(p_range[0], 2)
         bought_price = round(cost, 2) if cost else cost
         prediction = compare_price(last_price, predicted_price, bought_price=bought_price)
+        prediction_range = None
+        prediction_range = '1 minute' if step in ['T', 'MIN'] else prediction_range
+        prediction_range = '1 hour' if step in ['H'] else prediction_range
+        prediction_range = '1 day' if step in ['D'] else prediction_range
 
         # return the prediction results
         return {
             'engine': 'bayesian',
             'last_price': last_price,
-            'predicted_mean_price': round(mean, 2),
+            'predicted_price': round(mean, 2),
             'predicted_price_range': p_range,
-            'predicted_variance': variance,
+            'prediction_range': prediction_range,
             'prediction': prediction,
+            'predicted_variance': variance,
+            'predicted_mean_price': round(mean, 2)
         }
 
 
@@ -193,6 +200,7 @@ class StockPredictionLong:
 
             # read-in data into a pandas dataframe
             frame = pd.read_sql(query.statement, db_session.bind, index_col='date')
+            frame.sort_values('date', inplace=True)
         except Exception as e:
             logger.error(e)
             raise falcon.HTTPInternalServerError(description='Error loading data for prediction.')
@@ -239,5 +247,6 @@ class StockPredictionLong:
             'last_price': last_price,
             'predicted_price': predicted_price,
             'predicted_price_range': p_range,
-            'prediction': prediction,
+            'prediction_range': f'{days} days',
+            'prediction': prediction
         }

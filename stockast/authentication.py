@@ -61,7 +61,7 @@ class StockastAuthentication(object):
 
         try:
             # get user from DB
-            return session.query(User).filter_by(email=username).first()
+            return session.query(User).filter(User.email == username).first()
         finally:
             # attempt to close db connection even if there are errors
             session.close()
