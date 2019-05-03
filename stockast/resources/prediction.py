@@ -189,10 +189,10 @@ class StockPredictionLong:
             svm = SVM()
             days_of_data = int(days)
             days_of_data += int(days_of_data * 0.25)
-            logger.info(f'Days of data to get: {days_of_data}')
+            logger.debug(f'Days of data to get: {days_of_data}')
             from_date = pd.Timestamp(
                 pd.Timestamp.utcnow().strftime('%Y-%m-%d')) - BDay(days_of_data)
-            logger.info(f'From date: {from_date}')
+            logger.debug(f'From date: {from_date}')
             query = db_session.query(StockHistory).filter(
                 StockHistory.symbol == symbol,
                 StockHistory.date >= from_date.to_pydatetime()
@@ -211,14 +211,14 @@ class StockPredictionLong:
                 description=f'{symbol} does not have enough data for prediction')
 
         # calculate the ratios and drop uneeded rows
-        logger.info(f'Length of frame before filtering: {len(frame)}')
+        logger.debug(f'Length of frame before filtering: {len(frame)}')
         frame = frame.dropna()
         frame = frame.drop(['symbol'], axis=1)
         frame['High_Low_per'] = (frame['day_high'] - frame['day_close']) / frame['day_close']*100
         frame['Per_change'] = (frame['day_close'] - frame['day_open']) / frame['day_open']*100
         frame = frame[['day_close', 'High_Low_per', 'Per_change']]
         frame.fillna(value=-99999, inplace=True)
-        logger.info(f'Length of frame after filtering: {len(frame)}')
+        logger.debug(f'Length of frame after filtering: {len(frame)}')
 
         try:
             # use svm prediction
@@ -233,7 +233,7 @@ class StockPredictionLong:
             raise falcon.HTTPInternalServerError(
                 description=f'Not enough predicted points for requested days: {days}')
 
-        logger.info(f'Price Range: {p_range}')
+        logger.debug(f'Price Range: {p_range}')
         # get the prediction based on prices
         last_price = frame[["day_close"]].values[-1][0]
         last_price = round(last_price, 2)

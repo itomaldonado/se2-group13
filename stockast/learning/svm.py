@@ -42,4 +42,4 @@ class SVM:
         with open(model, 'rb') as mf:
             clf = pickle.load(mf)
             data = preprocessing.scale(data)
-            return preprocessing.scale(clf.predict(data))
+            return clf.predict(data)
