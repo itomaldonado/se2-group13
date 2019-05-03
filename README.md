@@ -9,6 +9,9 @@ Software Engineering 2 - Group 13 Project, broken down into two mayor components
 The stockast API server is written in python [falcon](https://falcon.readthedocs.io/en/stable/), and can run in `docker` or standalone with python and `gunicorn`.
 
 
+Stockast's public API documentation can be found at: https://bit.ly/stockast-api-docs
+
+
 ### Requirements:
 * An account with [IEX Cloud](http://iexcloud.io/) and an API Token
 * A running `MySQL` database or a path to a `SQLite` database
