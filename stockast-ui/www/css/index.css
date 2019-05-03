@@ -1,0 +1,44 @@
+.banner {
+  height: 540px;
+  background: url(../img/banner.png) no-repeat center top;
+  margin-bottom: 60px;
+}
+.banner:before {
+  content: '';
+  display: table;
+}
+.h1-title {
+  text-align: center;
+  color: #fff;
+  font-size: 120px;
+  font-weight: bold;
+  margin: 160px 0 40px;
+}
+.search {
+  width: 800px;
+  margin: 0 auto;
+}
+.part1 {
+  background: #fff;
+  padding-top: 60px;
+  padding-bottom: 80px;
+  margin-bottom: 60px;
+}
+.part1 .part-list {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+.part1 .part-list img {
+  margin-bottom: 15px;
+}
+.part2 {
+  min-height: 300px;
+  background: #fff;
+}
+.part2 .part2-tit img {
+  width: 100%;
+}
+.input-with-select{
+  width: 92%;
+}

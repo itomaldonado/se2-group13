@@ -1,0 +1,15 @@
+FROM nginx:stable
+
+# Remove the default Nginx configuration file
+RUN rm -v /etc/nginx/nginx.conf
+
+COPY ./stockast-ui/nginx/nginx.conf /etc/nginx/nginx.conf
+ADD ./stockast-ui/www  /usr/share/nginx/html/
+ADD ./stockast-ui/www  /var/www/html/
+
+# Append "daemon off;" to the beginning of the configuration
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+
+# Set the default command to execute
+# when creating a new container
+CMD service nginx start

@@ -1,0 +1,170 @@
+@charset "utf-8";
+/*
+ **************************************************************************
+ *                                                                      *
+ *  yxstudio Css Framework                                                   *
+ *                                                                      *
+ *  @copyright      Copyright (c) 2018, yxstudio.cn All rights reserved.*
+ *  @link           http://www.yxstudio.cn                              *
+ *  @author         yxstudio                                            *
+ *  @Team           yxstudio                                            *
+ *  @version        1.0                                                 *
+ *  @lastmodify     2018.4.15                                           *
+ *                                                                      *
+ **************************************************************************
+*/
+/* ============================================================
+     样式重置
+     描述：定义全站标签的基础样式
+     ============================================================ */
+
+body, p, ul, ol, li, dl, dt, dd, h1, h2, h3, h4, h5, h6, form, fieldset, legend, input, select, textarea, button, th, td, blockquote, address, pre {
+    margin: 0;
+    padding: 0;
+}
+h1, h2, h3, h4, h5, h6, input, textarea, select, button, label {
+    font-size: 100%;
+    vertical-align: middle;
+    font-weight: normal;
+}
+ul, dl, ol {
+    list-style: none;
+}
+img, fieldset {
+    border: none;
+}
+img {
+    display: inline-block;
+    vertical-align: top;
+}
+em, address,i {
+    font-style: normal;
+}
+sup, sub {
+    vertical-align: baseline;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+q:before {
+    content: "";
+}
+q:after {
+    content: "";
+}
+button {
+    cursor: pointer;
+    outline:none;
+    border:none;
+    background-color:transparent;
+    font-family:Arial, "Microsoft YaHei", sans-serif;
+}
+textarea {
+    word-wrap: break-word;
+    resize: none;
+}
+input,textarea{
+    outline:none;
+    font-family:Arial, "Microsoft YaHei", sans-serif;
+}
+/*  word-wrap for opera, resize for webkit  */
+
+input::-ms-clear {
+    display: none;
+}
+/*  Remove X button in input for IE10  */
+/* HTML5 [[ */
+
+article, aside, dialog, figure, footer, header, hgroup, nav, section {
+    display: block;
+}
+menu {
+    margin: 0;
+    padding: 0;
+}
+mark {
+    background-color: transparent;
+}
+/* HTML5 ]] */
+
+a, a:hover {
+    text-decoration: none;
+    color: #333333;
+    outline:none;
+}
+body {
+    font: 12px/1.5 Arial, "Microsoft YaHei", sans-serif;
+    color: #333333;
+    background-color: #ffffff;
+}
+/* VUE JS */
+[v-cloak] {
+  display: none !important;
+}
+
+::placeholder{
+    color:#999999;
+}
+/* ============================================================
+     常用功能类
+     描述：
+     ============================================================ */
+/* 浮动/清楚浮动 */
+
+.f-fl {
+    float: left;
+}
+.f-fr {
+    float: right;
+}
+.f-clearfix {
+    zoom: 1;
+}
+.f-clearfix:after {
+    content: ".";
+    clear: both;
+    display: block;
+    height: 0;
+    visibility: hidden;
+}
+/* 隐藏/显示 */
+.f-hide {
+    display: none !important;
+}
+.f-show {
+    display: block !important;
+}
+.f-hidden {
+    position: absolute!important;
+    width: 0!important;
+    height: 0!important;
+    line-height: 0!important;
+    overflow: hidden!important;
+    font-size: 0 !important;
+    border:none !important;
+    padding:0 !important;
+    outline:none !important;
+}
+.f-abs-hide {
+    position: absolute;
+    top: -9999em;
+    left: -9999em;
+}
+/* 文本对齐 */
+
+.f-align-l {
+    text-align: left;
+}
+.f-align-c {
+    text-align: center;
+}
+.f-align-r {
+    text-align: right;
+}
+/*文字超过一行显示省略号*/
+.f-hide-col-1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

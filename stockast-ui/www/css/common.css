@@ -1,0 +1,48 @@
+body {
+  min-height: 100vh;
+}
+.w1200 {
+  width: 1200px;
+  min-width: 1200px;
+  margin: 0 auto;
+}
+.theme-main {
+  color: #4289db;
+}
+.header {
+  height: 100px;
+  background: #fff;
+  line-height: 100px;
+  box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.1);
+}
+.header .header-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  background: #fff;
+}
+.header .logo a{
+  color: #458ee3;
+  font-size: 42px;
+  margin-right: 36px;
+}
+.header .sec-header {
+  color: #666;
+  font-size: 24px;
+}
+.ico-people {
+  display: inline-block;
+  margin-top: 10px;
+  width: 20px;
+  height: 20px;
+  background: url(../img/people.png) no-repeat;
+  background-size: 100% 100%;
+}
+.ico-clock {
+  display: inline-block;
+  margin-top: 9px;
+  width: 17px;
+  height: 23px;
+  background: url(../img/clock.png) no-repeat;
+  background-size: 100% 100%;
+}

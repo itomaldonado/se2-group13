@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/person.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.7.2/lib/theme-chalk/index.css">
+    <style>
+        .header-right{
+            float:right;
+            color: #458ee3;
+        }
+        .header .header-container{
+            justify-content: space-between;
+        }
+        .container-title{
+            font-size: 30px;
+            color: #333;
+        }
+        .sec-title{
+            color: rgb(129,129,129);
+        }
+        .title-part{
+            text-align: center;
+            margin-top: 40px;
+        }
+        a:hover{
+            color: #458ee3;
+        }
+        .h3-title{
+            font-size: 30px;
+            margin-left: 30px;
+            padding-top: 30px;
+            color: #333;
+        }
+        .h3-sec-tit{
+            font-size: 20px;
+            margin-left: 30px;
+            margin-bottom: 30px;
+        }
+        .container{
+            color: #808080;
+        }
+        #app{
+            padding-bottom: 60px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header class="header">
+            <div class="w1200 header-container">
+                <div class="logo"><a href="./index.html">Stockast</a></div>
+                <!-- <div class="sec-header">Welcome to register</div> -->
+            
+                <div class="header-right">
+                    <a class="header-right" href="javascript:;" onclick="history.go(-1)">
+                        Return
+                    </a>
+                </div>
+            </div>
+        </header>
+        <div class="title-part">
+            <div class="container-title">Personal Info</div>
+            <div class="sec-title">Basic info,like your name and photo,that you use on Stockast services</div>
+        </div>
+        <div class="container w1200">
+            <div class="register-form">
+                <!-- <h3 class="h3-title">Profile</h2>
+                <p class="h3-sec-tit">some info may be visible to other people using Stockast services. <a href="javascript:;" style="color: #458ee3">Learn more</a></p> -->
+                <ul class="info-list">
+                    <li class="info-item">
+                        <div class="info-tit">
+                            PHOTO
+                        </div>
+                        <div class="info-cnt">
+                            Add a photo to personalize your account
+                        </div>
+                        <div>
+                        </div>
+                    </li>
+                    <li class="info-item">
+                        <div class="info-tit">
+                            NAME
+                        </div>
+                        <div class="info-cnt">
+                            <!-- XINPENG JIN -->
+                            <span v-if="visible">{{showName}}</span>
+                            <el-input v-model="name" v-else></el-input>
+                        </div>
+                        <div>
+                            <!-- <img src="img/add.png" alt=""> -->
+                        </div>
+                    </li>
+                    <li class="info-item">
+                        <div class="info-tit">
+                            EMAIL
+                        </div>
+                        <div class="info-cnt">
+                            <!-- Rather not say -->
+                            <span v-if="visible">{{showEmail}}</span>
+                            <el-input v-model="email" v-else></el-input>
+                        </div>
+                        <div>
+                            <!-- <img src="img/add.png" alt=""> -->
+                        </div>
+                    </li>
+                    <li class="info-item">
+                        <div class="info-tit">
+                            PASSWORD
+                        </div>
+                        <div class="info-cnt">
+                            <input type="password" v-if="visible" v-model="showPassword" disabled>
+                            <input type="password" v-else v-model="password">
+                            <!--<div style="font-size: 16px;">Last changer April 13, 2019</div>-->
+                        </div>
+                        <div>
+                            <!-- <img src="img/add.png" alt=""> -->
+                        </div>
+                    </li>
+                </ul>
+                <el-row style="text-align: center;padding-bottom: 30px;">
+                    <el-button type="primary" style="margin: 0 20px;" @click="edit">Edit</el-button>
+                    <el-button type="primary" style="margin: 0 20px;" @click="save">Save</el-button>
+                </el-row>
+            </div>
+        </div>
+        <div class="container w1200">
+                <div class="register-form">
+                    <h3 class="h3-title">Stock You FOLLOWED</h2>
+                    <!-- <p class="h3-sec-tit">some info may be visible to other people using Stockast services. <a href="javascript:;" style="color: #458ee3">Learn more</a></p> -->
+                    <ul class="info-list">
+                        <li class="info-item" v-for="(item,index) in followList">
+                            <div class="info-tit">
+                                <!-- EMAIL -->
+                                {{item.symbol}}
+                            </div>
+                            <div class="info-cnt">
+                                <!-- xj67@scarletmail. rutgers. edu -->
+                                {{item.timestamp}}
+                            </div>
+                            <div>
+                                <!-- <img src="img/add.png" alt=""> -->
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+    </div>
+    <!-- 先引入 Vue -->
+  <script src="js/common.js"></script>
+  <script src="js/vue.js"></script>
+  <script src="js/axios.min.js"></script>
+  <!-- 引入组件库 -->
+  <script src="js/ele.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      data: function() {
+        return { 
+            visible: true,
+            name:'',
+            showName:'XINPENG JIN',
+            email:'',
+            showEmail:'Rather not say',
+            password:'',
+            showPassword:'1234',
+            followList:[],
+         }
+      },
+      methods:{
+        //  获取用户信息
+        getUserInfo(){
+            let id = localStorage.getItem('id') || 1;
+            User.User('get', {}, id).then( res => {
+              console.log('getFollows:',res);
+              if(res.status == 200){
+                this.name = this.showName = res.data.data.name;
+                this.email = this.showEmail = res.data.data.email;
+				this.password = this.showPassword = localStorage.getItem('password');
+              }
+            })
+            .catch( err=> {
+              console.log('getFollows err:',err);
+            });
+        },
+        //  edit
+        edit(){
+            this.visible = false;
+            this.name = this.showName;
+            this.email = this.showEmail;
+            this.password = this.showPassword;
+        },
+        //  save
+        save(){
+            let id = localStorage.getItem('id') || 1;
+            User.User('PATCH',{
+                "email": this.email,
+                "name": this.name,
+                "password": this.password
+            }, id).then( res => {
+              console.log('save:',res);
+			  if(res.status == 200){
+				this.visible = true;
+				this.name = this.showName = res.data.data.name;
+				this.email = this.showEmail = res.data.data.email;
+				this.showPassword = this.password;
+				localStorage.setItem('account',this.email);
+				localStorage.setItem('password',this.password);
+			  }
+            })
+            .catch( err=> {
+              console.log('save err:',err);
+            });
+        },
+        //  getFollowList
+        getFollowList(){
+          let id = localStorage.getItem('id') || 1;
+			console.log(id)
+          User.Follows('get',{},id).then( res => {
+            console.log('getFollowList:',res);
+            if(res.status == 200){
+              this.followList = res.data.data;
+            }
+          })
+          .catch( err=> {
+            console.log('getFollowList err:',err);
+          });
+        },
+      },
+      mounted(){
+        this.getUserInfo();
+        this.getFollowList();
+      }
+    })
+  </script>
+</body>
+</html>

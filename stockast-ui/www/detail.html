@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/detail.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.7.2/lib/theme-chalk/index.css">
+    <style>
+        .header-right{
+            float:right;
+            color: #fff;
+            font-size: 24px;
+        }
+        .header-right a{
+            color: #fff;
+        }
+        .header .logo{
+        	float: left;
+        }
+        .header .header-container{
+        	display: block;
+            justify-content: flex-end;
+            background: transparent;
+        }
+        .container-title{
+            font-size: 30px;
+            color: #333;
+        }
+        .sec-title{
+            color: rgb(129,129,129);
+        }
+        .title-part{
+            text-align: center;
+            margin-top: 60px;
+        }
+        a:hover{
+            color: #458ee3;
+        }
+        .h3-title{
+            font-size: 24px;
+            margin-left: 30px;
+            padding-top: 30px;
+        }
+        .h3-sec-tit{
+            margin-left: 30px;
+        }
+
+        .header{
+            background: rgba(0,0,0,.5);
+            /* position: absolute;
+            top: 0;
+            left: 0;
+            right: 0; */
+        }
+        .index-header{
+            background: transparent;
+        }
+        .part2-tit{
+            position: relative;
+        }
+        .tit-text{
+            position: absolute;
+            top: 0;
+            left: 30px;
+            line-height: 92px;
+            color: #fff;
+            font-size: 28px;
+        }
+        .search_h3{font-size: 20px; color: #00C5C7; text-align: center;}
+		.flow{
+			float: left;
+		    padding: 10px;
+		    overflow-y: scroll;
+		    height: 420px;
+		}
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header class="header">
+            <div class="w1200 header-container index-header">
+                <div class="logo"><a href="./index.html">Stockast</a></div>
+                <!-- <div class="sec-header">Welcome to register</div> -->
+                <div class="header-right">
+                    <a class="" href="person.html">
+                        User
+                    </a>
+                </div>
+            </div>
+        </header>
+        
+        <div class="pro-info w1200">
+			<div class="item">
+				<div class="pro-info-item">Marked summary</div>
+				<div class="pro-info-item">{{Company.name}}</div>
+				<div class="pro-info-item gray">{{Company.exchange}}：{{Company.symbol}}</div>
+				<div class="follow" @click="follow">＋ follow</div>
+			</div>
+            
+        </div>
+        <div class="part2 w1200">
+            <div class="part2-tit">
+                <div class="tit-text">Stock information</div>
+                <img src="img/title-bg.png" alt="">
+                <div>
+                    <div style="float: left; width:640px;" class="flow">
+                    	<h3 class="search_h3">History Search</h3>
+                        <table class="gridtable">
+                            <tr>
+                                <th>historical</th>
+                                <th>date</th>
+                                <th>symbol</th>
+                                <th>day_close</th>
+                                <th>day_high</th>
+                                <th>day_low</th>
+                                <th>day_open</th>
+                                <th>day_volume</th>
+                            </tr>
+                            <tr v-for="(item,index) in searchwholeList" v-if="index<20">
+                                <td>{{index}}</td>
+                                <td>{{item.date}}</td>
+                                <td>{{item.symbol}}</td>
+                                <td>{{item.day_close}}</td>
+                                <td>{{item.day_high}}</td>
+                                <td>{{item.day_low}}</td>
+                                <td>{{item.day_open}}</td>
+                                <td>{{item.day_volume}}</td>
+                            </tr>
+                        </table>  
+                    </div>
+                    <div style="float: right; width:520px;" class="flow">
+                    	<h3 class="search_h3">Realtime Search</h3>
+                        <table class="gridtable">
+                            <tr>
+                                <th>timedata</th>
+                                <th>price</th>
+                                <th>symbol</th>
+                                <th>timestamp</th>
+                            </tr>
+                            <tr v-for="(item,index) in searchwholeList1" v-if="index<100">
+                                <td>{{index}}</td>
+                                <td>{{item.price}}</td>
+                                <td>{{item.symbol}}</td>
+                                <td>{{item.timestamp}}</td>
+                            </tr>
+                        </table> 
+                    </div>
+                    <div style="clear:both; float: none;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="part2 w1200">
+            <div class="part2-tit">
+                <div class="tit-text">Prediction</div>
+                <img src="img/title-bg.png" alt="">
+                    <div style="float: left; width:580px;" class="flow">
+                    	<h3 class="search_h3">Short-term</h3>
+						<div class="pro-info-item">last_price:{{Predictions_short.last_price}}</div>
+						<div class="pro-info-item">predicted_mean_price:{{Predictions_short.predicted_mean_price}}</div>
+						<div class="pro-info-item">predicted_price_range:{{Predictions_short.predicted_price_range}}</div>
+						<div class="pro-info-item">predicted_variance:{{Predictions_short.predicted_variance}}</div>
+						<div class="pro-info-item">prediction:{{Predictions_short.prediction}}</div>
+                    </div>
+                    <div style="float: right; width:580px;" class="flow">
+                    	<h3 class="search_h3">Long-term</h3>
+						<div class="pro-info-item">engine:{{Predictions_long.engine}}</div>
+						<div class="pro-info-item">last_price:{{Predictions_long.last_price}}</div>
+						<div class="pro-info-item">predicted_price:{{Predictions_long.predicted_price}}</div>
+						<div class="pro-info-item">predicted_price_range:{{Predictions_long.predicted_price_range}}</div>
+						<div class="pro-info-item">prediction_range:{{Predictions_long.prediction_range}}</div>
+						<div class="pro-info-item">prediction:{{Predictions_long.prediction}}</div>
+                    </div>
+                    <div style="clear:both; float: none;"></div>
+            </div>
+        </div>
+    </div>
+    <!-- 先引入 Vue -->
+  <script src="js/common.js"></script>
+  <script src="js/vue.js"></script>
+  <script src="js/axios.min.js"></script>
+  <!-- 引入组件库 -->
+  <script src="js/ele.js"></script>
+  <script>
+    new Vue({
+        el: '#app',
+        data: function() {
+        return { 
+            visible: false,
+            loading:false,
+            searchCompanyList:[],
+            input5:'',
+			symbol:'',
+            Company:{},
+			Predictions_short:{},
+			Predictions_long:{},
+            searchwholeList:[],
+            searchwholeList1:[]
+            }
+        },
+        methods:{
+        toDetail(val){
+            if(val){
+                location.href = `detail.html?symbol=${val}`;
+            }
+        },
+        StocksRealtimeSearch(query){
+            this.input5 = query;
+            this.loading = true;
+            let currentDate = new Date();
+            let agoDate = new Date(currentDate - 1000 * 60 * 60 * 24 * 30);
+            Stocks.StocksRealtimeSearch({
+                symbol:'',
+                timestamp__gte:agoDate,
+                timestamp__lte:currentDate
+            }).then( res => {
+              console.log('getCompanyList:',res);
+              this.loading = false;
+              if(res.status == 200){
+                this.searchCompanyList = res.data.data.slice(0,10);
+              }
+            })
+            .catch( err=> {
+              console.log('getCompanyList err:',err);
+              this.loading = false;
+            });
+        },
+        //  getCompany
+        getCompany(){
+            Companies.CompanyList('get', {}, this.symbol).then( res => {
+              console.log('getCompany:',res);
+              if(res.status == 200){
+                this.Company = res.data.data;
+              }
+            })
+            .catch( err=> {
+              console.log('getCompany err:',err);
+            });
+        },
+		//  getPredictions
+        getPredictions(){
+            Predictions.Predictions_short({
+				step:'H',
+				days:'3',
+				cost:'200',
+			}, this.input5 || this.symbol).then( res => {
+              if(res.status == 200){
+                this.Predictions_short = res.data.data;
+              }
+            })
+            .catch( err=> {
+              console.log('getPredictions err:',err);
+            });
+            Predictions.Predictions_long({
+				engine:'svm',
+				days:'10',
+				cost:'200'
+			}, this.input5 || this.symbol).then( res => {
+              if(res.status == 200){
+                this.Predictions_long = res.data.data;
+              }
+            })
+            .catch( err=> {
+              console.log('getPredictions err:',err);
+            });
+        },
+        //  search
+        search(){
+			let currentDate = new Date();
+			let agoDate = new Date(currentDate - 1000 * 60 * 60 * 24 * 30);
+            Stocks.StocksRealtimeSearch({
+				symbol:this.input5,
+				timestamp__gte:agoDate,
+				timestamp__lte:currentDate
+			}).then( res => {
+              console.log('StocksRealtimeSearch:',res);
+              if(res.status == 200){
+				this.searchCompanyList = res.data.data;
+              }
+            })
+            .catch( err=> {
+              console.log('StocksRealtimeSearch err:',err);
+            });
+        },
+		//	follow
+		follow(){
+			let id = localStorage.getItem('id') || 1;
+			User.Follows('post',{
+				symbol:this.Company.symbol,
+			},id).then( res => {
+              console.log('StocksRealtimeSearch:',res);
+              if(res.status == 200){
+              }
+            })
+            .catch( err=> {
+              console.log('StocksRealtimeSearch err:',err);
+            });
+		},
+		//	url params
+		getQueryString(name) { 
+			let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
+			let r = window.location.search.substr(1).match(reg); 
+			if (r != null) return unescape(r[2]); 
+			return ''; 
+		},
+        //  stockinformation
+        stockinformation(){
+            let currentDate = new Date();
+            let agoDate = new Date(currentDate - 1000 * 60 * 60 * 24 * 15);
+            stockinformation.StocksHistorySearch({
+                symbol:this.symbol,
+                date__gte:agoDate,
+                date__lte:currentDate
+            }).then( res => {
+              console.log('getCompany:',res);
+              if(res.status == 200){
+                this.searchwholeList = res.data.data;
+                console.log(this.searchwholeList)
+              }
+            })
+            .catch( err=> {
+                console.log("dadssada")
+              console.log('getCompany err:',err);
+              console.log('sdadsa')
+            });
+            stockinformation.StocksRealtimeSearch({
+                symbol:this.symbol,
+                timestamp__gte:agoDate,
+                timestamp__lte:currentDate
+            }).then( res => {
+              console.log('getCompany:',res);
+              if(res.status == 200){
+                this.searchwholeList1 = res.data.data;
+                console.log(this.searchwholeList1)
+              }
+            })
+            .catch( err=> {
+                console.log("dadssada")
+              console.log('getCompany err:',err);
+              console.log('sdadsa')
+            });
+        },
+
+      },
+      mounted(){
+		this.symbol = this.getQueryString('symbol');
+        this.getCompany();
+		this.getPredictions();
+        this.stockinformation()
+      }
+    })
+  </script>
+</body>
+</html>

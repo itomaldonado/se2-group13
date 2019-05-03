@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>login</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/register.css">
+    <link rel="stylesheet" href="css/ele.css">
+    <style>
+        .container{
+            width: 480px;
+            padding: 0 40px 40px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+
+        <header class="header">
+            <div class="w1200 header-container">
+                <div class="logo"><a href="./index.html">Stockast</a></div>
+                <div class="sec-header">Welcome landing</div>
+            </div>
+        </header>
+        <div class="container">
+            <div class="register-form">
+                <h2 class="title">Sign in</h2>
+                <div class="reg-input">
+                    <el-input
+                        placeholder="Enter one user name" v-model="account"
+                        >
+                        <i slot="prefix" class="ico-people"></i>
+                    </el-input>
+                </div>
+                <div class="reg-input">
+                    <el-input
+                        placeholder="Input password" v-model="password"
+                        >
+                        <i slot="prefix" class="ico-clock"></i>
+                    </el-input>
+                </div>
+                <div class="forget-pwd">
+                    <el-checkbox v-model="checked">Remember me</el-checkbox>
+                </div>
+                <el-button class="sign-in" type="primary" @click="signIn">Sign in</el-button>
+                <div class="f-align-c">
+                    <a class="theme-main " href="register.html">
+                        No account yet. Register now
+                    </a>
+                </div>
+                <!-- <div class="f-align-c">
+                    Change Password
+                </div> -->
+            </div>
+        </div>
+    </div>
+    <!-- 先引入 Vue -->
+  <script src="js/common.js"></script>
+  <script src="js/vue.js"></script>
+  <script src="js/axios.min.js"></script>
+  <!-- 引入组件库 -->
+  <script src="js/ele.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      data: function() {
+        return { 
+            account:'',
+            password:'',
+            checked:false,
+         }
+      },
+      methods:{
+        //   Sign in 
+        signIn(){
+			localStorage.setItem('account',this.account);
+			localStorage.setItem('password',this.password);
+            User.UserLogin().then( res => {
+              console.log('signIn:',res.data);
+				if(res.status == 200){
+				  localStorage.setItem('id',res.data.data.id);
+				  localStorage.setItem('name',res.data.data.name);
+				  location.href = 'index.html';
+				}
+              
+            })
+            .catch( err=> {
+              console.log('signIn err:',err);
+			  this.$message({
+                    showClose: true,
+                    message: '登录失败',
+                    type: 'warning',
+                    duration:msgDuration
+                });
+            });
+        }
+      },
+      created(){
+          if(localStorage.getItem('account') || localStorage.getItem('password')){
+            this.checked = true;
+            this.account = localStorage.getItem('account');
+            this.password = localStorage.getItem('password');
+          }
+      }
+    })
+  </script>
+</body>
+</html>

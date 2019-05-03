@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.7.2/lib/theme-chalk/index.css">
+    <style>
+        .header-right{
+            float:right;
+            color: #fff;
+            font-size: 24px;
+        }
+        .header .header-container{
+            justify-content: flex-end;
+            background: transparent;
+        }
+        .container-title{
+            font-size: 30px;
+            color: #333;
+        }
+        .sec-title{
+            color: rgb(129,129,129);
+        }
+        .title-part{
+            text-align: center;
+            margin-top: 60px;
+        }
+        a:hover{
+            color: #458ee3;
+        }
+        .h3-title{
+            font-size: 24px;
+            margin-left: 30px;
+            padding-top: 30px;
+        }
+        .h3-sec-tit{
+            margin-left: 30px;
+        }
+
+        .header{
+            background: rgba(0,0,0,.5);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        .index-header{
+            background: transparent;
+        }
+        #app{
+            background: #f7f7f7;
+            padding-bottom: 60px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header class="header">
+            <div class="w1200 header-container index-header">
+                <!-- <div class="logo">Stockast</div> -->
+                <!-- <div class="sec-header">Welcome to register</div> -->
+            
+                <div class="header-right">
+                    <a class="header-right" href="person.html">
+                        User
+                    </a>
+                </div>
+            </div>
+        </header>
+        <div class="banner">
+            <h1 class="h1-title">Stockast</h1>
+            <div class="search">
+               <!-- <el-input placeholder="Everybody is searching: Which stock is good?" v-model="input5" class="input-with-select">
+                    <el-button slot="append" icon="el-icon-search" @click="toDetail"></el-button>
+                </el-input>-->
+				
+				<el-select
+					class="input-with-select"
+					v-model="input5"
+					filterable
+					remote
+					reserve-keyword
+					placeholder="Everybody is searching: Which stock is good?"
+					:remote-method="StocksRealtimeSearch"
+					:loading="loading"
+					@change="toDetail">
+					<el-option
+					  v-for="(item,index) in searchCompanyList"
+					  :key="index"
+					  :label="item.symbol"
+					  :value="item.symbol">
+					</el-option>
+				  </el-select>
+				  <el-button slot="append" icon="el-icon-search" @click="toDetail(input5)"></el-button>
+            </div>
+        </div>
+        <div class="part1 w1200">
+            <ul class="part-list">
+                <li class="part-item">
+                    <img src="img/1.png" alt="">
+                    <div>
+                        Cost transparency
+                    </div>
+                </li>
+                <li class="part-item">
+                    <img src="img/2.png" alt="">
+                    <div>
+                        Fund trusteeship
+                    </div>
+                </li>
+                <li class="part-item">
+                    <img src="img/3.png" alt="">
+                    <div>
+                        Wind control system
+                    </div>
+                </li>
+                <li class="part-item">
+                    <img src="img/4.png" alt="">
+                    <div>
+                        Safety guarantee
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- 先引入 Vue -->
+  <script src="js/common.js"></script>
+  <script src="js/vue.js"></script>
+  <script src="js/axios.min.js"></script>
+  <!-- 引入组件库 -->
+  <script src="js/ele.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      data: function() {
+        return { 
+          input5:'',
+          searchCompanyList:[],
+		  loading:false,
+        }
+      },
+      methods: {
+        toDetail(val){
+			if(val){
+				location.href = `detail.html?symbol=${val}`;
+			}
+        },
+        StocksRealtimeSearch(query){
+			this.input5 = query;
+			this.loading = true;
+			let currentDate = new Date();
+			let agoDate = new Date(currentDate - 1000 * 60 * 60 * 24 * 30);
+            Companies.CompanyList('get', {
+				symbol__contains:this.input5,
+			}).then( res => {
+              console.log('getCompanyList:',res);
+			  this.loading = false;
+              if(res.status == 200){
+				this.searchCompanyList = res.data.data.slice(0,10);
+              }
+            })
+            .catch( err=> {
+              console.log('getCompanyList err:',err);
+			  this.loading = false;
+            });
+        },
+//      StocksRealtimeSearch	(query){
+//			this.input5 = query;
+//			this.loading = true;
+//			let currentDate = new Date();
+//			let agoDate = new Date(currentDate - 1000 * 60 * 60 * 24 * 30);
+//          Stocks.StocksRealtimeSearch({
+//				symbol:'',
+//				timestamp__gte:agoDate,
+//				timestamp__lte:currentDate
+//			}).then( res => {
+//            console.log('getCompanyList:',res);
+//			  this.loading = false;
+//            if(res.status == 200){
+//				this.searchCompanyList = res.data.data.slice(0,10);
+//            }
+//          })
+//          .catch( err=> {
+//            console.log('getCompanyList err:',err);
+//			  this.loading = false;
+//          });
+//      },
+        //  获取Follows
+        getFollows(){
+          User.Follows('get',{}).then( res => {
+              console.log('getFollows:',res);
+            })
+            .catch( err=> {
+              console.log('getFollows err:',err);
+            });
+        },
+        //  获取FollowsSingle
+        getFollowsSingle(){
+          User.FollowsSingle('get',{}).then( res => {
+              console.log('FollowsSingle:',res);
+            })
+            .catch( err=> {
+              console.log('FollowsSingle err:',err);
+            });
+        },
+      },
+      mounted() {
+        console.log(Base64.encode('someone@example.com:1234'));
+      },
+    })
+  </script>
+</body>
+</html>

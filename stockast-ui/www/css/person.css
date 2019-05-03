@@ -1,0 +1,88 @@
+body {
+  background-position: center bottom;
+}
+.container {
+  width: 980px;
+  margin: 40px auto 0;
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: 0 3px 17px 0 rgba(0, 0, 0, 0.1);
+}
+.header .logo a{
+  color: #458ee3;
+  font-size: 42px;
+  margin-right: 36px;
+}
+.register-form {
+  margin: 0 auto;
+}
+.register-form .title {
+  text-align: center;
+  font-size: 24px;
+  line-height: 80px;
+  margin-bottom: 37px;
+  position: relative;
+}
+.register-form .title::after {
+  content: '';
+  display: block;
+  width: 55px;
+  height: 6px;
+  background: #4289db;
+  position: absolute;
+  border-radius: 50px;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.register-form .reg-input {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+.register-form .reg-input .input-tit {
+  width: 100px;
+  text-align: right;
+  margin-right: 15px;
+  line-height: 40px;
+}
+.register-form .reg-input .input-cnt {
+  width: 300px;
+}
+.register-form .forget-pwd {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 33px;
+}
+.register-form .sign-in {
+  width: 400px;
+  margin: 25px auto;
+  text-align: center;
+}
+.info-item {
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+  font-size: 20px;
+  padding: 30px;
+}
+.info-item:last-child {
+  border-bottom: 0;
+}
+.info-item:hover {
+  background: #f5f5f5;
+}
+.info-item:hover input {
+  background: #f5f5f5;
+}
+.info-item .info-tit {
+  width: 120px;
+}
+.info-item .info-cnt {
+  width: 600px;
+}
+.info-item .info-cnt input {
+  border: 0;
+}
