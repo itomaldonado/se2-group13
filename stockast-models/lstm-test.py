@@ -38,7 +38,7 @@ def performance_indicators(df, period):
 symbol = 'AAPL'
 days_back = 120
 days_predicted = 30
-model_name = 'LSTM_AAPL_LB120_FD30_E5_F50_S30'
+model_name = 'LSTM_AMZN_LB120_FD30_E50_F50_S30'
 
 # read data
 dataframe = pd.read_csv('../data-dumps/stocks_history.csv', index_col="date", parse_dates=True)
@@ -49,8 +49,8 @@ df = dataframe[dataframe['symbol'] == symbol]
 df = df[['day_open', 'day_high', 'day_low', 'day_close', 'day_volume']]
 
 # get indicators
-for i in [5, 10, 15, 20, 25, 30]:
-    df = performance_indicators(df, i)
+for i in range(1, int(days_predicted/5) + 1):
+    df = performance_indicators(df, int(i * 5))
 df.dropna(inplace=True)
 
 # drop data
@@ -73,6 +73,6 @@ model = load_model(f'./models/{model_name}.h5')
 data = np.array([array, ])
 Xt = model.predict(data)
 
-# show the predicted value, it shows ten days:
+# show the predicted value, it shows X days:
 print(np.round(scl.inverse_transform(Xt)[0], 2))
 print(expected)

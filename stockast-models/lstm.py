@@ -50,7 +50,7 @@ def performance_indicators(df, period):
     return df
 
 
-symbol = 'AAPL'
+symbol = 'GOOG'
 
 # read data
 dataframe = pd.read_csv('../data-dumps/stocks_history.csv', index_col="date", parse_dates=True)
@@ -67,11 +67,12 @@ df = dataframe[dataframe['symbol'] == symbol]
 num_periods = 20
 look_back = 120
 forward_days = 30
+batch_size = 2
 
 # model parameters
 NUM_NEURONS_FirstLayer = 50
 NUM_NEURONS_SecondLayer = 30
-EPOCHS = 50
+EPOCHS = 5
 
 # model file name
 file_name = (
@@ -84,7 +85,7 @@ df = df[['day_open', 'day_high', 'day_low', 'day_close', 'day_volume']]
 
 # get indicators
 for i in range(1, int(forward_days/5) + 1):
-    df = performance_indicators(df, i)
+    df = performance_indicators(df, int(i * 5))
 df.dropna(inplace=True)
 
 
@@ -132,18 +133,8 @@ else:
     history = model.fit(
         X_train, y_train, epochs=EPOCHS,
         validation_data=(X_validate, y_validate),
-        shuffle=True, batch_size=2, verbose=2
+        shuffle=True, batch_size=batch_size, verbose=2
     )
-
-    # Plot training & validation accuracy values
-    plt.figure(figsize=(15, 10))
-    plt.plot(history.history['acc'])
-    plt.plot(history.history['val_acc'])
-    plt.title('Model accuracy')
-    plt.ylabel('Accuracy')
-    plt.xlabel('Epoch')
-    plt.legend(['Train', 'Test'], loc='upper left')
-    plt.show()
 
     # Plot training & validation loss values
     plt.figure(figsize=(15, 10))

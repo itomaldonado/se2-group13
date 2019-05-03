@@ -207,3 +207,8 @@ The folder: `./data-dumps` contains three files with the historical and real-tim
 * Dump of companies information table: `./data-dumps/companies.csv`
 * Dump of historical stocks data: `./data-dumps/stocks_history.csv`
 * Dump of real-time stocks data: `./data-dumps/stocks_real_time.csv`
+
+
+## Stockast Modeling
+
+The folder `/path/to/se2-group13/stockast-models` contains an assortment of one-of files used during the machine learning modeling process and may not be completely usable on their own.
