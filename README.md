@@ -1,22 +1,54 @@
 # se2-group13
 Software Engineering 2 - Group 13 Project
 
+
 ## Requirements:
 * [Python 3.7](https://www.python.org/downloads/release/python-372/)
 * [pip](https://pip.pypa.io/en/stable/installing/)
 * (Optional) [Vritual Environment](https://virtualenv.pypa.io/en/latest/installation/)
+* For running in docker:
+  * [Docker](https://docs.docker.com/install/)
+  * [docker-compose](https://docs.docker.com/compose/install/)
 * An account with [IEX Cloud](http://iexcloud.io/) and an API Token
 * A running `MySQL` database or a path to a `SQLite` database.
 
-## Installation & Configuration (Unix/Linux/MacOS):
+
+## Installation & Configuration
+
+Stockast can be installed in one of two ways, using docker or using plain python. We show both ways here.
+
+### Installation & Configuration (Unix/Linux/MacOS) - Docker:
+* Export IEX Cloud token to your environment: `export STOCKAST_IEX_CLOUD_TOKEN=<IEX_API_TOKEN_HERE>`
+* Change into the directory: `cd /path/to/se2-group13/`
+* Run: `docker-compose up -d`
+  * Note, this will start three services: a mysql database (on port `3306`), the stockast-api (on port `8000`) and the stockast-ui (on port `80`)
+* Navigate to `http://localhost:80` to see the UI
+* Navigate to `http://localhost:8000/status` to see the status of the stockast API
+
+### Installation & Configuration (Unix/Linux/MacOS) - Python:
 * (Optional) Set-up a virtual environment:
 	* Change into the directory: `cd /path/to/se2-group13/`
   * Create environment: `virtualenv ./venv`
   * Activate environment: `source ./venv/bin/activate`
-* Install all project dependencies: `pip install -r requirements.txt`
-* Export IEX Cloud token to your environment: `export IEX_TOKEN=<IEX_API_TOKEN_HERE>`
+* Install all project dependencies: `pip install -r ./stockast/requirements.txt`
+* Export IEX Cloud token to your environment: `export STOCKAST_IEX_CLOUD_TOKEN=<IEX_API_TOKEN_HERE>`
+* Export the database url (use SQLite when running locally) `export STOCKAST_DATABASE_URL=sqlite:///$(pwd)/stockast.db`
+* Run the stockast-api server: `gunicorn stockast.app`
+* The stockast-ui is a simple static web site so you can open the file `./stockast-ui/www/index.html` in your browser
+* Navigate to `http://localhost:8000/status` to see the status of the stockast API
 
-## Collectors
+### API Configuration
+
+The stockast API server is configured using environmental variables, here is the list of available configuration:
+
+* `STOCKAST_IEX_CLOUD_TOKEN`: the IEX cloud token
+* `STOCKAST_DATABASE_URL`: the database url used for stockast, supports only SQLite or MySQL
+* `STOCKAST_LOG_LEVEL`: controls the log level: `DEBUG`, `INFO`, `WARN`, `ERROR`
+* `STOCKAST_DATABASE_DEBUG`: show debug information of database interactions
+* `STOCKAST_API_PREFIX`: if the paths served by the API server need a prefix (e.g. `/api/` or `/v1`) this controls that prefix
+* `STOCKAST_ADMIN_USER_EMAIL`: the email address of the admin user, this user can do things on behalf of other users
+
+## Data Collectors
 The collectors seen on this section will get data for 10 different stocks (hard-coded symbols). The symbols are:
 ```
 [
@@ -105,28 +137,34 @@ for each can be seen below and is further explained [here](https://docs.sqlalche
 	* example: `sqlite:///db.sqlite3`
 
 
-## Real-Time Collection
+### Continuous Historical & Real-Time Data Collection
 
-To collect real-time information, we use the [real-time collector](#real-time-data-collector) and a [cron job](https://en.wikipedia.org/wiki/Cron) that runs every minute from 9:00 AM to 1:00 PM EST (30 mins before open to close of NYSE hours) Monday through Friday.
+To conituously collect historical and real-time stock information, we use the both collectors ([real-time collector](#real-time-data-collector)) and a [cron job](https://en.wikipedia.org/wiki/Cron).
 
-The cron expression for this is: `* 13-21 * * 1-5` and can be explained [here](https://crontab.guru/#*_13-21_*_*_1-5)
+For historical data, it runs in the mornings at 5 minutes past 1:00 AM, Monday through Friday, which will collect the historical information of all tracked companies for the day before. An example is cron expression is seen below:
 
-The full cron command would be:
 ```
-# cd into script folder: /path/to/se2-group13
-# use the virtual environment's python: /path/to/se2-group13/venv/bin/python
-# call realtime script with IEX_TOKEN and database connection string
+# historical -1 day collection
+5 5 * * 1-5 docker run --rm itomaldonado/stockast-api:latest python get-historical-stock-data.py --token <IEX_TOKEN> --from-date=$(date -d "-5 days" +'%Y-%m-%d') --to-date=$(date +'%Y-%m-%d') <database connection string> >> /path/to/logs/historical.log 2>&1
+```
+The cron expression used for historical data is: `5 5 * * 1-5` and can be explained [here](https://crontab.guru/#5_5_*_*_1-5)
 
-* 13-21 * * 1-5 cd /path/to/se2-group13 && /path/to/se2-group13/venv/bin/python /path/to/se2-group13/get-realtime-stock-data.py -t <IEX_TOKEN> <database connection string>
+For real-time data, it runs every minute from 9:00 AM to 1:00 PM EST (30 mins before open to close of NYSE hours) Monday through Friday, which collects the strike-price of all tracked stocks. An example is seen below:
+
+```
+# real-time collection
+* 13-21 * * 1-5 docker run --rm itomaldonado/stockast-api:latest python get-realtime-stock-data.py --token <IEX_TOKEN> <database connection string> >> /path/to/logs/real-time.log 2>&1
 ```
 
+The cron expression used for real-time data is: `* 13-21 * * 1-5` and can be explained [here](https://crontab.guru/#*_13-21_*_*_1-5)
 
-# Database Schema
+
+## Database Schema
 
 Included is also the database schema for the project. It can be found at: `./database-schema/stockast.pdf`.
 
 
-# Data Dumps
+## Data Dumps
 
 The folder: `./data-dumps` contains three files with the historical and real-time information collected.
 

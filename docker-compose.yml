@@ -1,0 +1,25 @@
+version: '3'
+services:
+  web:
+    image: itomaldonado/stockast-ui:latest
+    ports:
+      - 80:80
+  api:
+    image: itomaldonado/stockast-api:latest
+    ports:
+      - 8000:80
+    environment:
+      - STOCKAST_LOG_LEVEL=DEBUG
+      - STOCKAST_IEX_CLOUD_TOKEN=${STOCKAST_IEX_CLOUD_TOKEN}
+      - STOCKAST_DATABASE_URL=mysql://stockast:stockast@mysql/stockast
+      - STOCKAST_LOG_LEVEL=DEBUG
+  mysql:
+    image: mysql:latest
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=stockast
+      - MYSQL_DATABASE=stockast
+      - MYSQL_DATABASE=stockast
+      - MYSQL_USER=stockast
+      - MYSQL_PASSWORD=stockast

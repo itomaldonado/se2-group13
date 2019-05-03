@@ -31,7 +31,7 @@ default_symbols = [
 @click.command()
 @click.option('--debug', is_flag=True, help="Show queries")
 @click.option('--show-data', '-s', is_flag=True, help="Show data downloaded")
-@click.option('--token', default=os.getenv('IEX_TOKEN'), help='IEX Cloud API Token')
+@click.option('--token', default=os.getenv('STOCKAST_IEX_CLOUD_TOKEN'), help='IEX Cloud API Token')
 @click.option(
     '--from-date', '-f', default='2018-01-01', type=click.DateTime(), help='From date to get data')
 @click.option(

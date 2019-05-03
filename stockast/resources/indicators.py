@@ -13,8 +13,8 @@ from stockast.utils import check_and_get_company
 logger = logging.getLogger(__name__)
 
 
-class StockPredictors:
-    """ Resource to run short-term predictions"""
+class StockIndicators:
+    """ Resource to show a company's performance indicators"""
 
     DEFAULT_DAYS = 5
 
@@ -29,7 +29,7 @@ class StockPredictors:
         symbol = symbol.upper()
 
         # return dictionary
-        predictiors = {}
+        indicators = {}
 
         with session_scope(self.db_engine) as db_session:
 
@@ -51,23 +51,24 @@ class StockPredictors:
             except Exception as e:
                 logger.error(e)
                 raise falcon.HTTPInternalServerError(
-                    description='Error loading data for predictors.')
+                    description='Error loading data for indicators.')
 
                 # there is no data to do anything, raise error
             if frame.empty:
                 raise falcon.HTTPInternalServerError(
-                    description=f'{symbol} does not have enough data to calculate the predictors')
+                    description=f'{symbol} does not have enough data to calculate the indicators')
 
-            # calculate predictors and add the data to the return dictionary
-            predictiors.update({'stddev': self._calculate_stddev(frame, days)})
-            predictiors.update({'rsi': self._calculate_rsi(frame, days)})
-            predictiors.update({'willr': self._calculate_willr(frame, days)})
-            predictiors.update({'wma': self._calculate_wma(frame, days)})
-            predictiors.update({'vwma': self._calculate_vwma(frame, days)})
+            # calculate indicators and add the data to the return dictionary
+            indicators.update({'stddev': self._calculate_stddev(frame, days)})
+            indicators.update({'rsi': self._calculate_rsi(frame, days)})
+            indicators.update({'willr': self._calculate_willr(frame, days)})
+            indicators.update({'wma': self._calculate_wma(frame, days)})
+            indicators.update({'vwma': self._calculate_vwma(frame, days)})
+            indicators.update({'range': f'{days} days'})
 
             # return the prediction results
             resp.status = falcon.HTTP_OK
-            resp.media = {'data': predictiors}
+            resp.media = {'data': indicators}
 
     def _calculate_stddev(self, df, period):
         """ Calculates the Standard Deviation for the period given"""
