@@ -92,15 +92,14 @@
                 </div>
             </div>
         </header>
-        
         <div class="pro-info w1200">
 			<div class="item">
 				<div class="pro-info-item">Marked summary</div>
 				<div class="pro-info-item">{{Company.name}}</div>
 				<div class="pro-info-item gray">{{Company.exchange}}：{{Company.symbol}}</div>
-				<div class="follow" @click="follow">＋ follow</div>
+				<div class="follow" @click="follow()" v-if="!followed">＋ follow</div>
+				<div class="follow" @click="unfollow()"  v-if="followed"> followed</div>
 			</div>
-            
         </div>
         <div class="part2 w1200">
             <div class="part2-tit">
@@ -108,7 +107,7 @@
                 <img src="img/title-bg.png" alt="">
                 <div>
                     <div style="float: left; width:640px;" class="flow">
-                    	<h3 class="search_h3">History Search</h3>
+                    	<h3 class="search_h3" @click="showCont">History Search</h3>
                         <table class="gridtable">
                             <tr>
                                 <th>historical</th>
@@ -120,7 +119,7 @@
                                 <th>day_open</th>
                                 <th>day_volume</th>
                             </tr>
-                            <tr v-for="(item,index) in searchwholeList" v-if="index<20">
+                            <tr v-for="(item,index) in searchwholeList" v-if="index<10">
                                 <td>{{index}}</td>
                                 <td>{{item.date}}</td>
                                 <td>{{item.symbol}}</td>
@@ -133,7 +132,7 @@
                         </table>  
                     </div>
                     <div style="float: right; width:520px;" class="flow">
-                    	<h3 class="search_h3">Realtime Search</h3>
+                    	<h3 class="search_h3" @click="showCont1">Realtime Search</h3>
                         <table class="gridtable">
                             <tr>
                                 <th>timedata</th>
@@ -141,7 +140,7 @@
                                 <th>symbol</th>
                                 <th>timestamp</th>
                             </tr>
-                            <tr v-for="(item,index) in searchwholeList1" v-if="index<100">
+                            <tr v-for="(item,index) in searchwholeList1" v-if="index<10">
                                 <td>{{index}}</td>
                                 <td>{{item.price}}</td>
                                 <td>{{item.symbol}}</td>
@@ -150,6 +149,65 @@
                         </table> 
                     </div>
                     <div style="clear:both; float: none;"></div>
+                    <div>
+						<div class="pro-info-item">Highest Stock Price in the last ten days:{{moreinfo.k1}}</div>
+						<div class="pro-info-item">Average stock price in the latest one year:{{moreinfo.k2}}</div>
+						<div class="pro-info-item">Lowest stock price in the latest one year:{{moreinfo.k3}}</div>
+						<div class="pro-info-item">Companies who have the average stock price lesser than the lowest of this company in the latest one year:{{moreinfo.k4}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="position"  v-if="show">
+            <h3 class="search_h3" style="background: #fff;" @click="showCont">History Search（close）</h3>
+            <table class="gridtable">
+                <tr>
+                    <th>date</th>
+                    <th>symbol</th>
+                    <th>day_close</th>
+                    <th>day_high</th>
+                    <th>day_low</th>
+                    <th>day_open</th>
+                    <th>day_volume</th>
+                </tr>
+                <tr v-for="(item,index) in searchwholeList" v-if="index<50">
+                    <td>{{item.date}}</td>
+                    <td>{{item.symbol}}</td>
+                    <td>{{item.day_close}}</td>
+                    <td>{{item.day_high}}</td>
+                    <td>{{item.day_low}}</td>
+                    <td>{{item.day_open}}</td>
+                    <td>{{item.day_volume}}</td>
+                </tr>
+            </table> 
+        </div>
+        <div class="position"  v-if="show1" style="width: 391px;">
+            <h3 class="search_h3" style="background: #fff;" @click="showCont1">Realtime Search（close）</h3>
+            <table class="gridtable">
+                <tr>
+                    <th>timedata</th>
+                    <th>price</th>
+                    <th>symbol</th>
+                    <th>timestamp</th>
+                </tr>
+                <tr v-for="(item,index) in searchwholeList1" v-if="index<50">
+                    <td>{{index}}</td>
+                    <td>{{item.price}}</td>
+                    <td>{{item.symbol}}</td>
+                    <td>{{item.timestamp}}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="part2 w1200">
+            <div class="part2-tit">
+                <div class="tit-text">Performance Indicators</div>
+                <img src="img/title-bg.png" alt="">
+                <div>
+					<div class="pro-info-item">Standard Deviation:{{Predictions_com.stddev}}</div>
+					<div class="pro-info-item">Relative Strength Index:{{Predictions_com.rsi}}</div>
+					<div class="pro-info-item">Williams %R:{{Predictions_com.willr}}</div>
+					<div class="pro-info-item">Weighted Moving Average:{{Predictions_com.wma}}</div>
+					<div class="pro-info-item">Volume Weighted Moving Average:{{Predictions_com.vwma}}</div>
                 </div>
             </div>
         </div>
@@ -191,6 +249,8 @@
         return { 
             visible: false,
             loading:false,
+            show:false,
+            show1:false,
             searchCompanyList:[],
             input5:'',
 			symbol:'',
@@ -198,35 +258,23 @@
 			Predictions_short:{},
 			Predictions_long:{},
             searchwholeList:[],
-            searchwholeList1:[]
+            searchwholeList1:[],
+            followed:false,
+            Predictions_com:[],
+            moreinfo:[]
             }
         },
         methods:{
+        showCont(){
+            this.show = !this.show
+        },
+        showCont1(){
+            this.show1 = !this.show1
+        },
         toDetail(val){
             if(val){
                 location.href = `detail.html?symbol=${val}`;
             }
-        },
-        StocksRealtimeSearch(query){
-            this.input5 = query;
-            this.loading = true;
-            let currentDate = new Date();
-            let agoDate = new Date(currentDate - 1000 * 60 * 60 * 24 * 30);
-            Stocks.StocksRealtimeSearch({
-                symbol:'',
-                timestamp__gte:agoDate,
-                timestamp__lte:currentDate
-            }).then( res => {
-              console.log('getCompanyList:',res);
-              this.loading = false;
-              if(res.status == 200){
-                this.searchCompanyList = res.data.data.slice(0,10);
-              }
-            })
-            .catch( err=> {
-              console.log('getCompanyList err:',err);
-              this.loading = false;
-            });
         },
         //  getCompany
         getCompany(){
@@ -244,7 +292,7 @@
         getPredictions(){
             Predictions.Predictions_short({
 				step:'H',
-				days:'3',
+				days:'5',
 				cost:'200',
 			}, this.input5 || this.symbol).then( res => {
               if(res.status == 200){
@@ -266,37 +314,44 @@
             .catch( err=> {
               console.log('getPredictions err:',err);
             });
-        },
-        //  search
-        search(){
-			let currentDate = new Date();
-			let agoDate = new Date(currentDate - 1000 * 60 * 60 * 24 * 30);
-            Stocks.StocksRealtimeSearch({
-				symbol:this.input5,
-				timestamp__gte:agoDate,
-				timestamp__lte:currentDate
-			}).then( res => {
-              console.log('StocksRealtimeSearch:',res);
+            Predictions.Predictions_com({
+				days:'5'
+			}, this.input5 || this.symbol).then( res => {
               if(res.status == 200){
-				this.searchCompanyList = res.data.data;
+                this.Predictions_com = res.data.data;
               }
             })
             .catch( err=> {
-              console.log('StocksRealtimeSearch err:',err);
+              console.log('getPredictions err:',err);
             });
         },
 		//	follow
 		follow(){
 			let id = localStorage.getItem('id') || 1;
 			User.Follows('post',{
-				symbol:this.Company.symbol,
+				symbol:this.symbol,
+			},id).then( res => {
+              if(res.status == 200){
+              	this.followed = true;
+              }
+              this.followed = true;
+            })
+            .catch( err=> {
+            });
+		},
+		//	follow
+		unfollow(){
+			let id = localStorage.getItem('id') || 1;
+			User.Follows('delete',{
+				symbol:this.symbol,
 			},id).then( res => {
               console.log('StocksRealtimeSearch:',res);
               if(res.status == 200){
+              	this.followed = false;
               }
+              this.followed = false;
             })
             .catch( err=> {
-              console.log('StocksRealtimeSearch err:',err);
             });
 		},
 		//	url params
@@ -309,7 +364,9 @@
         //  stockinformation
         stockinformation(){
             let currentDate = new Date();
-            let agoDate = new Date(currentDate - 1000 * 60 * 60 * 24 * 15);
+            let agoDate = new Date(currentDate - 1000 * 60 * 60 * 24 * 35);
+            let agoDate10 = new Date(currentDate - 1000 * 60 * 60 * 24 * 10);
+            let agoDate365 = new Date(currentDate - 1000 * 60 * 60 * 24 * 365);
             stockinformation.StocksHistorySearch({
                 symbol:this.symbol,
                 date__gte:agoDate,
@@ -318,13 +375,10 @@
               console.log('getCompany:',res);
               if(res.status == 200){
                 this.searchwholeList = res.data.data;
-                console.log(this.searchwholeList)
+                console.log(res.data.data)
               }
             })
             .catch( err=> {
-                console.log("dadssada")
-              console.log('getCompany err:',err);
-              console.log('sdadsa')
             });
             stockinformation.StocksRealtimeSearch({
                 symbol:this.symbol,
@@ -334,24 +388,81 @@
               console.log('getCompany:',res);
               if(res.status == 200){
                 this.searchwholeList1 = res.data.data;
-                console.log(this.searchwholeList1)
               }
             })
             .catch( err=> {
-                console.log("dadssada")
-              console.log('getCompany err:',err);
-              console.log('sdadsa')
             });
+            ///////////////////
+            stockinformation.StocksHistorySearch({
+                symbol:this.symbol,
+                date__gte:agoDate10,
+                __sort:'-day_close',
+                __limit:'1'
+            }).then( res => {
+              if(res.status == 200){
+                this.moreinfo.k1 = res.data.data[0].day_close;
+              }
+            })
+            .catch( err=> {
+            });
+            ///////////////////
+            stockinformation.StocksHistorySearch({
+                symbol:this.symbol,
+                date__gte:agoDate365
+            }).then( res => {
+              if(res.status == 200){
+                tmpdata = res.data.data;
+                tmptotal = 0;
+                for(var i=0; i<tmpdata.length; i++){
+                	tmptotal += (tmpdata[i].day_high+tmpdata[i].day_low)/2;
+                }
+                this.moreinfo.k2 = tmptotal/tmpdata.length;
+              }
+            })
+            .catch( err=> {
+            });
+            ///////////////////
+            stockinformation.StocksHistorySearch({
+                symbol:this.symbol,
+                date__gte:agoDate365,
+                __sort:'day_close',
+                __limit:1
+            }).then( res => {
+              if(res.status == 200){
+              	let kkkkk = '';
+                this.moreinfo.k3 = res.data.data[0].day_low;
+              	let base_coms = '{"AABA":"69.42797188755017","AAPL":"191.20889558232932","ADBE":"251.4170281124498","AMZN":"1733.8529116465875","NVDA":"209.41632530120467","TSLA":"307.95805220883545","FB":"167.89036144578301","MSFT":"107.95184738955822","GOOG":"1134.4689558232926","JPM":"108.25297188755016"}';
+              	var showarr = new Array();
+              	var base_arr = JSON.parse(base_coms);
+              	for(var tmpkey in base_arr){
+                	if(base_arr[tmpkey]<this.moreinfo.k3){
+                		kkkkk += tmpkey+'; '
+                	}
+				}
+              	this.moreinfo.k4 = kkkkk;
+              }
+            })
+            .catch( err=> {
+            });
+            ///////////////////
+            
         },
-
       },
       mounted(){
 		this.symbol = this.getQueryString('symbol');
         this.getCompany();
 		this.getPredictions();
-        this.stockinformation()
+        this.stockinformation();
       }
     })
+	function in_array(search,array){
+	    for(var i in array){
+	        if(array[i]==search){
+	            return true;
+	        }
+	    }
+	    return false;
+	}
   </script>
 </body>
 </html>

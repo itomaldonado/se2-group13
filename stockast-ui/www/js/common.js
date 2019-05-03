@@ -182,6 +182,9 @@ const Predictions = {
   Predictions_long : (params, symbol)=>{
     return commonAxios('get', `predict/long${symbol?'/'+symbol:''}`, params)
   },
+  Predictions_com : (params, symbol)=>{
+    return commonAxios('get', `indicators${symbol?'/'+symbol:''}`, params)
+  },
 }
 
 // stocks

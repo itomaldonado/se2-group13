@@ -29,7 +29,51 @@ class LSTM:
         self.trained_data_input = 120
         self.trained_forecast_out = 30
 
-    def predict(self, symbol, data, forecast_out):
+    def predict_short(self, symbol, data):
+        """ Predict stock "close" value for the next day
+        Args:
+            symbol (String): symbol name used to load the model
+            data (pandas Dataframe): contains input data for prediction, should be of size
+                (self.data_needed) rows of data, with format:
+                'day_open', 'day_high', 'day_low', 'day_close'
+        """
+        symbol = symbol.upper()
+        model_file = f'{self.models}/short/{symbol}.{self.models_ext}'
+
+        if not os.path.isfile(model_file):
+            raise Exception(f'Short-term LSTM model for {symbol} does not exist')
+
+        if len(data) < 1:
+            raise Exception(f'Data provided is not enough for short-term prediction')
+
+        # drop any uneeded columns and any NAs
+        data = data[['day_open', 'day_high', 'day_low', 'day_close']]
+        data = data.dropna()
+        logger.debug(f'Data Frame Shape: {data.shape}')
+
+        # trim the frame to the exact number needed
+        data = data.tail(1)
+
+        # scale the data
+        scl = MinMaxScaler()
+        array = data.values.reshape(data.shape)
+        array = scl.fit_transform(array)
+        array_close = data['day_close'].values.reshape(data.shape[0], 1)
+        array_close = scl.fit_transform(array_close)
+
+        # load the model
+        model = load_model(model_file)
+
+        # predict with the test data
+        data = np.array([array, ])
+        predicted_values = model.predict(data)
+        predicted_values = np.round(scl.inverse_transform(predicted_values)[0], 2)
+        predicted_values = predicted_values.tolist()
+
+        # slice the array for the data we need and return that
+        return predicted_values
+
+    def predict_long(self, symbol, data, forecast_out):
         """ Predict stock "close" value `forecast_out` days in the future
         Args:
             symbol (String): symbol name used to load the model
@@ -39,7 +83,7 @@ class LSTM:
             forecast_out (Integer): used to verify if the data provided is enough to forecast
         """
         symbol = symbol.upper()
-        model_file = f'{self.models}/{symbol}.{self.models_ext}'
+        model_file = f'{self.models}/long/{symbol}.{self.models_ext}'
 
         if not os.path.isfile(model_file):
             raise Exception(f'Model for {symbol} does not exist')

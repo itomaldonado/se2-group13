@@ -102,3 +102,19 @@ table.gridtable td {
 .follow{
   cursor:pointer;
 }
+.position{
+    position: fixed;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 550px;
+    height: 500px;
+    padding: 20px;
+    z-index: 100;
+    text-align: center;
+    overflow-y: scroll;
+    background-color: #ffffff;
+    border: 3px solid #cccccc;
+}
