@@ -23,7 +23,7 @@ class SVM:
         Args:
             symbol (String): symbol name used to load the model
             data (pandas Dataframe): contains input data for prediction, should be of size
-                (forecast_out / 0.01) rows of data, with format:
+                (forecast_out) rows of data, with format:
                 'day_close','High_Low_per','Per_change'
             forecast_out (Integer): used to verify if the data provided is enough to forecast
         """

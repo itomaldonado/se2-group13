@@ -1,6 +1,5 @@
 import falcon
 import logging
-import math
 import pandas as pd
 
 from falcon_autocrud.db_session import session_scope
@@ -8,6 +7,7 @@ from pandas.tseries.offsets import BDay
 
 from stockast.authentication import StockastAuthentication
 from stockast.learning import bayesian
+from stockast.learning.lstm import LSTM
 from stockast.learning.svm import SVM
 from stockast.models import Company, StockHistory, StockRealTime
 from stockast.utils import check_and_get_company, check_params, compare_price
@@ -175,9 +175,11 @@ class StockPredictionLong:
             # get prediction results and return
             if engine == 'svm':
                 prediction_results = self._svm(company.symbol, db_session, days=days, cost=cost)
+            elif engine == 'lstm':
+                prediction_results = self._lstm(company.symbol, db_session, days=days, cost=cost)
             else:
-                pass
-                # error
+                raise falcon.HTTPInternalServerError(
+                    msg=f'The engine selected does not exist')
 
             # return the prediction results
             resp.status = falcon.HTTP_OK
@@ -244,6 +246,68 @@ class StockPredictionLong:
         # return the prediction results
         return {
             'engine': 'svm',
+            'last_price': last_price,
+            'predicted_price': predicted_price,
+            'predicted_price_range': p_range,
+            'prediction_range': f'{days} days',
+            'prediction': prediction
+        }
+
+    def _lstm(self, symbol, db_session, days=10, cost=None):
+        try:
+            # create query to filter by symbol and business days
+            lstm = LSTM()
+            days_of_data = int(lstm.data_needed)
+            days_of_data += int(days_of_data * 0.25)
+            logger.debug(f'Days of data to get: {days_of_data}')
+            from_date = pd.Timestamp(
+                pd.Timestamp.utcnow().strftime('%Y-%m-%d')) - BDay(days_of_data)
+            logger.debug(f'From date: {from_date}')
+            query = db_session.query(StockHistory).filter(
+                StockHistory.symbol == symbol,
+                StockHistory.date >= from_date.to_pydatetime()
+            )
+
+            # read-in data into a pandas dataframe
+            frame = pd.read_sql(query.statement, db_session.bind, index_col='date')
+            frame.sort_values('date', inplace=True)
+        except Exception as e:
+            logger.error(e)
+            raise falcon.HTTPInternalServerError(description='Error loading data for prediction.')
+
+        # there is no data to do anything, raise error
+        if frame.empty:
+            raise falcon.HTTPInternalServerError(
+                description=f'{symbol} does not have enough data for prediction')
+
+        # calculate the ratios and drop uneeded rows
+        frame = frame.dropna()
+        frame = frame.drop(['symbol'], axis=1)
+        logger.debug(f'Length of data frame: {len(frame)}')
+
+        try:
+            # use svm prediction
+            p_range = lstm.predict(symbol, frame, days)
+        except Exception as e:
+            logger.error(e)
+            raise falcon.HTTPInternalServerError(
+                description='could not run SVM prediction.')
+
+        if len(p_range) < days:
+            raise falcon.HTTPInternalServerError(
+                description=f'Not enough predicted points for requested days: {days}')
+
+        logger.debug(f'Price Range: {p_range}')
+        # get the prediction based on prices
+        last_price = frame[["day_close"]].values[-1][0]
+        last_price = round(last_price, 2)
+        predicted_price = round(p_range[(days-1)], 2)
+        bought_price = round(cost, 2) if cost else cost
+        prediction = compare_price(last_price, predicted_price, bought_price=bought_price)
+
+        # return the prediction results
+        return {
+            'engine': 'lstm',
             'last_price': last_price,
             'predicted_price': predicted_price,
             'predicted_price_range': p_range,
