@@ -190,7 +190,8 @@ class StockPredictionLong:
             # create query to filter by symbol and business days
             svm = SVM()
             days_of_data = int(days)
-            days_of_data += int(days_of_data * 0.25)
+            days_of_data += int(days_of_data * 1.0)
+            days_of_data = max(100, days_of_data)
             logger.debug(f'Days of data to get: {days_of_data}')
             from_date = pd.Timestamp(
                 pd.Timestamp.utcnow().strftime('%Y-%m-%d')) - BDay(days_of_data)
@@ -258,7 +259,7 @@ class StockPredictionLong:
             # create query to filter by symbol and business days
             lstm = LSTM()
             days_of_data = int(lstm.data_needed)
-            days_of_data += int(days_of_data * 0.25)
+            days_of_data += int(days_of_data * 1.0)
             logger.debug(f'Days of data to get: {days_of_data}')
             from_date = pd.Timestamp(
                 pd.Timestamp.utcnow().strftime('%Y-%m-%d')) - BDay(days_of_data)
@@ -282,7 +283,7 @@ class StockPredictionLong:
 
         # calculate the ratios and drop uneeded rows
         frame = frame.dropna()
-        frame = frame.drop(['symbol'], axis=1)
+        frame = frame[['day_open', 'day_high', 'day_low', 'day_close', 'day_volume']]
         logger.debug(f'Length of data frame: {len(frame)}')
 
         try:
@@ -291,7 +292,7 @@ class StockPredictionLong:
         except Exception as e:
             logger.error(e)
             raise falcon.HTTPInternalServerError(
-                description='could not run SVM prediction.')
+                description='could not run LSTM prediction.')
 
         if len(p_range) < days:
             raise falcon.HTTPInternalServerError(

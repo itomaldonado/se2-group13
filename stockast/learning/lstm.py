@@ -1,9 +1,12 @@
+import logging
 import numpy as np
 import os
 import tulipy as ti
 
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
+
+logger = logging.getLogger(__name__)
 
 
 class LSTM:
@@ -22,7 +25,7 @@ class LSTM:
             self.models = os.path.abspath(models_dir)
 
         # model configuration
-        self.data_needed = 130
+        self.data_needed = 180
         self.trained_data_input = 120
         self.trained_forecast_out = 30
 
@@ -35,7 +38,8 @@ class LSTM:
                 'day_open', 'day_high', 'day_low', 'day_close', 'day_volume'
             forecast_out (Integer): used to verify if the data provided is enough to forecast
         """
-        model_file = f'{self.models}/{symbol.upper()}.{self.models_ext}'
+        symbol = symbol.upper()
+        model_file = f'{self.models}/{symbol}.{self.models_ext}'
 
         if not os.path.isfile(model_file):
             raise Exception(f'Model for {symbol} does not exist')
@@ -47,14 +51,17 @@ class LSTM:
         for i in range(1, int(self.trained_forecast_out/5) + 1):
             data = self.performance_indicators(data, i)
         data.dropna(inplace=True)
+        logger.debug(f'Data Frame Shape: {data.shape}')
 
         # trim the frame to the exact number needed
-        data = data[-self.trained_data_input:]
+        data = data.tail(self.trained_data_input)
 
         # scale the data
         scl = MinMaxScaler()
         array = data.values.reshape(data.shape)
         array = scl.fit_transform(array)
+        array_close = data['day_close'].values.reshape(data.shape[0], 1)
+        array_close = scl.fit_transform(array_close)
 
         # load the model
         model = load_model(model_file)
