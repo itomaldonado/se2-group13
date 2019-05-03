@@ -33,5 +33,9 @@ ADD ./get-historical-stock-data.py /home/python
 ADD ./get-realtime-stock-data.py /home/python
 ADD ./stockast /home/python/stockast
 
+# add wait-for-it.sh
+COPY ./bin/wait-for-it.sh /home/python
+RUN chmod +x /home/python/wait-for-it.sh
+
 EXPOSE 80
 CMD gunicorn -b ${GUNICORN_HOST}:${GUNICORN_PORT} --workers ${GUNICORN_WORKERS} stockast.app

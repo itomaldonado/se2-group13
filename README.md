@@ -1,23 +1,31 @@
 # se2-group13
-Software Engineering 2 - Group 13 Project
+Software Engineering 2 - Group 13 Project, broken down into two mayor components:
+* `stockast`: the stockast api server written in python
+* `stockast-ui`: the stockast web ui written in HTML/CSS/Javascript/Vuejs
 
 
-## Requirements:
-* [Python 3.7](https://www.python.org/downloads/release/python-372/)
-* [pip](https://pip.pypa.io/en/stable/installing/)
-* (Optional) [Vritual Environment](https://virtualenv.pypa.io/en/latest/installation/)
+## Stockast API Server
+
+The stockast API server is written in python [falcon](https://falcon.readthedocs.io/en/stable/), and can run in `docker` or standalone with python and `gunicorn`.
+
+
+### Requirements:
+* An account with [IEX Cloud](http://iexcloud.io/) and an API Token
+* A running `MySQL` database or a path to a `SQLite` database
+* For running with python and `gunicorn`:
+  * [Python 3.7](https://www.python.org/downloads/release/python-372/)
+  * [pip](https://pip.pypa.io/en/stable/installing/)
+  * (Optional) [Vritual Environment](https://virtualenv.pypa.io/en/latest/installation/)
 * For running in docker:
   * [Docker](https://docs.docker.com/install/)
   * [docker-compose](https://docs.docker.com/compose/install/)
-* An account with [IEX Cloud](http://iexcloud.io/) and an API Token
-* A running `MySQL` database or a path to a `SQLite` database.
 
 
-## Installation & Configuration
+### Installation & Configuration
 
 Stockast can be installed in one of two ways, using docker or using plain python. We show both ways here.
 
-### Installation & Configuration (Unix/Linux/MacOS) - Docker:
+#### Installation, Configuration & Running (Unix/Linux/MacOS/Windows) - Docker:
 * Export IEX Cloud token to your environment: `export STOCKAST_IEX_CLOUD_TOKEN=<IEX_API_TOKEN_HERE>`
 * Change into the directory: `cd /path/to/se2-group13/`
 * Run: `docker-compose up -d`
@@ -25,7 +33,7 @@ Stockast can be installed in one of two ways, using docker or using plain python
 * Navigate to `http://localhost:80` to see the UI
 * Navigate to `http://localhost:8000/status` to see the status of the stockast API
 
-### Installation & Configuration (Unix/Linux/MacOS) - Python:
+#### Installation, Configuration & Running (Unix/Linux/MacOS) - Python:
 * (Optional) Set-up a virtual environment:
 	* Change into the directory: `cd /path/to/se2-group13/`
   * Create environment: `virtualenv ./venv`
@@ -37,7 +45,7 @@ Stockast can be installed in one of two ways, using docker or using plain python
 * The stockast-ui is a simple static web site so you can open the file `./stockast-ui/www/index.html` in your browser
 * Navigate to `http://localhost:8000/status` to see the status of the stockast API
 
-### API Configuration
+#### API Configuration
 
 The stockast API server is configured using environmental variables, here is the list of available configuration:
 
@@ -48,7 +56,32 @@ The stockast API server is configured using environmental variables, here is the
 * `STOCKAST_API_PREFIX`: if the paths served by the API server need a prefix (e.g. `/api/` or `/v1`) this controls that prefix
 * `STOCKAST_ADMIN_USER_EMAIL`: the email address of the admin user, this user can do things on behalf of other users
 
-## Data Collectors
+
+## Stockast Web User Interface (UI)
+
+The stockast API server is written in plain HTML, CSS and javascript with the help of [Vuejs](https://vuejs.org/).
+
+
+### Installation & Configuration
+
+UI is currently configured to connect to the public API: `https://stockast.itomaldonado.com`.
+
+#### Installation, Configuration & Running (Unix/Linux/MacOS/Windows) - Docker:
+* Export IEX Cloud token to your environment: `export STOCKAST_IEX_CLOUD_TOKEN=<IEX_API_TOKEN_HERE>`
+* Change into the directory: `cd /path/to/se2-group13/`
+* Run: `docker-compose up -d`
+  * Note, this will start three services: a mysql database (on port `3306`), the stockast-api (on port `8000`) and the stockast-ui (on port `80`)
+* Navigate to `http://localhost:80` to see the UI
+* Navigate to `http://localhost:8000/status` to see the status of the stockast API
+
+#### Installation, Configuration & Running (Unix/Linux/MacOS/Windows) - Locally:
+* Simply open the following file with your preferred web browser: 
+```
+/path/to/se2-group13/stockast-ui/www/index.html
+```
+
+
+## Stockast Data Collectors
 The collectors seen on this section will get data for 10 different stocks (hard-coded symbols). The symbols are:
 ```
 [
